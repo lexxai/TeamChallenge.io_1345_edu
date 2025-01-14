@@ -9,6 +9,8 @@ packages = [{include = "teamchallenge"}]
 
 [tool.poetry.dependencies]
 python = "^3.12"
+django = "^5.1.5"
+django-rest-swagger = "^2.2.0"
 
 
 [build-system]
