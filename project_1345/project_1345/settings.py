@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "rest_framework",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -133,3 +134,16 @@ SESSION_COOKIE_AGE = (
     180 * 24 * 60 * 60
 )  # 180 days. Default 1209600 (2 weeks, in seconds)
 CART_SESSION_ID = "cart"
+
+# REST_FRAMEWORK = {
+#     "DEFAULT_RENDERER_CLASSES": [
+#         "rest_framework.renderers.JSONRenderer",  # Only render JSON responses
+#     ]
+# }
+
+REST_FRAMEWORK = {
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_framework.renderers.JSONRenderer",
+        "rest_framework.renderers.BrowsableAPIRenderer",
+    ]
+}

@@ -35,6 +35,20 @@ argon2 = ["argon2-cffi (>=19.1.0)"]
 bcrypt = ["bcrypt"]
 
 [[package]]
+name = "django-jsoneditor"
+version = "0.2.4"
+description = "Django JSON Editor"
+optional = false
+python-versions = "*"
+files = [
+    {file = "django-jsoneditor-0.2.4.tar.gz", hash = "sha256:1d3dfca28f047feefa6ebc6f9541179eb815fb459b006faf3fb8d0fb2197d2df"},
+    {file = "django_jsoneditor-0.2.4-py2.py3-none-any.whl", hash = "sha256:d7a639a7251e376126b5be64ea588c925c7a40d45e0e212f66ef475d2f0f90bb"},
+]
+
+[package.dependencies]
+packaging = "*"
+
+[[package]]
 name = "djangorestframework"
 version = "3.15.2"
 description = "Web APIs for Django, made easy."
@@ -207,4 +221,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "9c903604716fddd39197e9d311f497bf1efeedad929d77aa8ea40a80b1f5d07f"
+content-hash = "b387ce4c8aeb1c49fa0eede9fcf2e38445db9165326c3fd29c2248e9a7258bf1"
