@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "drf_yasg",
-    "cart.apps.CartConfig",
+    "cart.apps.project_1345",
 ]
 
 MIDDLEWARE = [
@@ -124,4 +124,10 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
+# SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_AGE = (
+    180 * 24 * 60 * 60
+)  # 180 days. Default 1209600 (2 weeks, in seconds)
 CART_SESSION_ID = "cart"
