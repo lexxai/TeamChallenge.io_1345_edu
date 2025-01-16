@@ -1,6 +1,6 @@
 from django.db import models
 
-from project_1345.category.models import Category
+from category.models import Category
 
 
 # Create your models here.
