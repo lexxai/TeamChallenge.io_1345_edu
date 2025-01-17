@@ -46,6 +46,51 @@ class CartView(APIView):
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def put(self, request, product_id: int, *args, **kwargs):
+        """Update an item in the cart"""
+        if not product_id:
+            return Response(
+                {"message": "Product ID is required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        request.data["product_id"] = product_id
+        # Validate the request data using the serializer
+        serializer = CartItemSerializer(data=request.data)
+        if serializer.is_valid():
+            # Initialize the cart
+            cart = Cart(request)
+
+            # Check if the product exists in the cart
+            if str(product_id) not in cart.cart:
+                return Response(
+                    {"message": "Product not found in cart"},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
+            # Update the item in the cart
+            cart.cart[str(product_id)]["quantity"] = serializer.validated_data[
+                "quantity"
+            ]
+            if "price" in serializer.validated_data:
+                cart.cart[str(product_id)]["price"] = str(
+                    serializer.validated_data["price"]
+                )
+
+            # Save the updated cart
+            cart.save()
+
+            return Response(
+                {"message": "Item updated in cart"},
+                status=status.HTTP_200_OK,
+            )
+
+        # Return validation errors if serializer is invalid
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, product_id: int):
+        """Update an item in the cart"""
+        self.put(request, product_id)
+
     def delete(self, request):
         """Remove an item from the cart or clear the entire cart"""
         product_id = request.data.get("product_id")
@@ -54,7 +99,12 @@ class CartView(APIView):
 
         if product_id:
             # Remove the specific product from the cart
-            cart.remove(product_id)
+            result = cart.remove(product_id)
+            if not result:
+                return Response(
+                    {"message": "Item not found in cart"},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
             return Response(
                 {"message": "Item removed from cart"}, status=status.HTTP_204_NO_CONTENT
             )

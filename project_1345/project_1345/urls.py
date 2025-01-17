@@ -16,7 +16,7 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 
 # from django.urls import re_path
 from rest_framework import permissions
@@ -49,5 +49,5 @@ urlpatterns = [
     ),
     path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
     path("admin/", admin.site.urls),
-    path("api/v1/cart/", CartView.as_view(), name="cart"),
+    path("api/v1/cart/", include("cart.urls")),
 ]

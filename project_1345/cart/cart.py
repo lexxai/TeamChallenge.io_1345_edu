@@ -32,17 +32,36 @@ class Cart(object):
         self.cart[product_id]["quantity"] += quantity
         self.save()
 
+    def update(self, product_id: int, quantity: int = None, price: float = None):
+        product_id = str(product_id)
+        updated = False
+        if product_id is not None and product_id in self.cart:
+            if price is not None:
+                self.cart[product_id]["price"] = str(Decimal(price))
+                updated = True
+            if quantity is not None:
+                self.cart[product_id]["quantity"] = quantity
+                self.cart[product_id]["total_price"] = str(
+                    Decimal(self.cart[product_id]["price"]) * quantity
+                )
+                updated = True
+        if updated:
+            self.save()
+
     def save(self):
         # update the session cart
         self.session[settings.CART_SESSION_ID] = self.cart
         # mark the session as "modified", so Django will save it
         self.session.modified = True
 
-    def remove(self, product):
-        product_id = str(product.id)
+    def remove(self, product_id) -> bool:
+        product_id = str(product_id)
         if product_id in self.cart:
-            del self.cart[product_id]
-            self.save()
+            if product_id in self.cart:
+                del self.cart[product_id]
+                self.save()
+                return True
+        return False
 
     def __iter__(self):
         product_ids = self.cart.keys()
