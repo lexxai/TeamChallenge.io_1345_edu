@@ -9,6 +9,10 @@ Team Challenge project #1345. Test and education with git. Any action from co-ow
 
 <img width="1209" alt="Знімок екрана 2025-01-14 о 22 11 47" src="https://github.com/user-attachments/assets/94de68fa-05cf-41c1-90d3-9d00ae8dfd83" />
 
+API /api/v1/cart GET example:
+![Знімок екрана 2025-01-17 о 04 02 03](https://github.com/user-attachments/assets/b283d3a4-8474-4911-92cf-e91101c5b79e)
+
+
 ## API
 ### Cart 
 /api/v1/cart
