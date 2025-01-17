@@ -1,6 +1,7 @@
 from decimal import Decimal
-
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.exceptions import NotFound
 
 from product.models import Product
 
@@ -16,19 +17,19 @@ class Cart(object):
 
     def add(self, product_id, quantity=1, price=0):
         product_id = str(product_id)
-        if product_id not in self.cart:
-            self.cart[product_id] = {"quantity": 0, "price": str(price)}
-        self.cart[product_id]["quantity"] += quantity
-        self.save()
+        try:
+            # Check if the product exists in the Product model
+            product = Product.objects.get(id=product_id)
+        except ObjectDoesNotExist:
+            # If the product does not exist, raise an error or handle accordingly
+            raise NotFound(detail=f"Product with ID {product_id} does not exist.")
 
-    def add_0(self, product, quantity=1, override_quantity=False):
-        product_id = str(product.id)
         if product_id not in self.cart:
-            self.cart[product_id] = {"quantity": 0, "price": str(product.price)}
-        if override_quantity:
-            self.cart[product_id]["quantity"] = quantity
-        else:
-            self.cart[product_id]["quantity"] += quantity
+            self.cart[product_id] = {
+                "quantity": 0,
+                "price": str(Decimal(price)),
+            }  # store price as Decimal
+        self.cart[product_id]["quantity"] += quantity
         self.save()
 
     def save(self):
@@ -52,16 +53,14 @@ class Cart(object):
             cart[str(product.id)]["product"] = product
         for item in cart.values():
             item["price"] = Decimal(item["price"])
-            item["total_price"] = Decimal(item["price"]) * item["quantity"]
+            item["total_price"] = item["price"] * item["quantity"]
             yield item
 
     def __len__(self):
         return sum(item["quantity"] for item in self.cart.values())
 
     def get_sub_total_price(self):
-        return sum(
-            Decimal(item["price"]) * item["quantity"] for item in self.cart.values()
-        )
+        return sum(item["price"] * item["quantity"] for item in self.cart.values())
 
     def clear(self):
         """
@@ -72,4 +71,22 @@ class Cart(object):
         self.save()
 
     def get_cart_items(self):
-        return self.cart
+        # Return cart items in a structured format for API serialization
+        items = []
+        for product_id, item in self.cart.items():
+            try:
+                product = Product.objects.get(id=int(product_id))
+                items.append(
+                    {
+                        "product_id": product_id,
+                        "product_name": product.name,
+                        "quantity": item["quantity"],
+                        "price": str(item["price"]),
+                        "total_price": str(
+                            Decimal(item["price"]) * int(item["quantity"])
+                        ),
+                    }
+                )
+            except Product.DoesNotExist:
+                continue  # Handle missing product gracefully
+        return items
