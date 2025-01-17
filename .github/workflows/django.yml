@@ -27,4 +27,6 @@ jobs:
         pip install -r requirements.txt
     - name: Run Tests
       run: |
+        cd project_1345
+        export PYTHONPATH=.
         python manage.py test
