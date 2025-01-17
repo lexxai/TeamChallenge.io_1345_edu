@@ -10,7 +10,25 @@ class CartView(APIView):
         """Retrieve cart contents"""
         cart = Cart(request)
         cart_items = cart.get_cart_items()
-        serializer = CartContentSerializer(cart_items.items(), many=True)
+
+        # Prepare the cart items data for serialization
+        cart_items_data = (
+            [
+                {
+                    "product_id": item["product_id"],
+                    "product_name": item["product_name"],
+                    "quantity": item["quantity"],
+                    "price": item["price"],  # Ensure price is a string or Decimal
+                    "total_price": item["total_price"],  # Calculate total price
+                }
+                for item in cart_items
+            ]
+            if cart_items
+            else []
+        )
+
+        # Serialize the cart items data
+        serializer = CartContentSerializer(cart_items_data, many=True)
         return Response(serializer.data)
 
     def post(self, request):
@@ -29,14 +47,21 @@ class CartView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request):
-        """Remove an item from the cart"""
+        """Remove an item from the cart or clear the entire cart"""
         product_id = request.data.get("product_id")
+
+        cart = Cart(request)
+
         if product_id:
-            cart = Cart(request)
+            # Remove the specific product from the cart
             cart.remove(product_id)
             return Response(
                 {"message": "Item removed from cart"}, status=status.HTTP_204_NO_CONTENT
             )
-        return Response(
-            {"error": "product_id is required"}, status=status.HTTP_400_BAD_REQUEST
-        )
+        else:
+            # No product_id provided, so clear the entire cart
+            cart.clear()
+            return Response(
+                {"message": "Cart cleared successfully"},
+                status=status.HTTP_204_NO_CONTENT,
+            )
