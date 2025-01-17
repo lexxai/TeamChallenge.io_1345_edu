@@ -16,6 +16,7 @@ from .models import Product
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = (
+        "id",
         "name",
         "owner",
         "price",
@@ -32,4 +33,4 @@ class ProductAdmin(admin.ModelAdmin):
         "created_at",
     )  # Add filters for quick filtering
     ordering = ("-created_at",)  # Default ordering in the admin
-    readonly_fields = ("created_at", "updated_at")  # Make timestamps read-only
+    readonly_fields = ("id", "created_at", "updated_at")  # Make timestamps read-only

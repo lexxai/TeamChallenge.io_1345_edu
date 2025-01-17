@@ -12,20 +12,32 @@ class Category(models.Model):
 
 
 class CategorySchema(models.Model):
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    properties = models.JSONField(null=True, blank=True, default=dict)
+    category = models.ForeignKey(
+        Category, on_delete=models.CASCADE
+    )  # Link to the Category model
+    schema = models.JSONField(
+        null=True, blank=True, default=dict
+    )  # Store the schema as a JSON object
+
+    class Meta:
+        verbose_name = "Category Schema"
+        verbose_name_plural = "Category Schemas"
 
     def __str__(self):
-        return f"Schema for {self.category.name}"
+        return f"Schema for {self.category.name}"  # Return category name for easier identification
+
+    def __repr__(self):
+        return str(self)
 
     def get_property_type(self, property_name):
         """Retrieve the type of a property."""
-        return self.properties.get(property_name, {}).get("type", None)
+        return self.schema.get(property_name, {}).get("type", None)
 
 
 # {
 #     "color": {
-#         "type": "str"
+#         "type": "str",
+#         "required": true
 #     },
 #     "size": {
 #         "type": "int"
