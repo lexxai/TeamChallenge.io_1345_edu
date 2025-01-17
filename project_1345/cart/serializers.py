@@ -8,6 +8,8 @@ class CartItemSerializer(serializers.Serializer):
 
 
 class CartContentSerializer(serializers.Serializer):
-    product_id = serializers.CharField()
+    product_id = serializers.IntegerField()
+    product_name = serializers.CharField(max_length=255)
     quantity = serializers.IntegerField()
     price = serializers.DecimalField(max_digits=10, decimal_places=2)
+    total_price = serializers.DecimalField(max_digits=10, decimal_places=2)
