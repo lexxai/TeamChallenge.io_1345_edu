@@ -11,7 +11,7 @@ Team Challenge project #1345. Test and education with git. Any action from co-ow
 
 ## API
 ### Cart 
-/api/v1/card
+/api/v1/cart
 #### GET
 ```json
 [
