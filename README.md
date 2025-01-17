@@ -44,7 +44,7 @@ Can delete one product:
 ```json
 {"product_id": 1}
 ```
-Or without prapms can delete all item's cart
+Or without any data can delete all item's cart
 
 #### Example of GET
 
