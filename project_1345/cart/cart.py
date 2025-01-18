@@ -100,19 +100,27 @@ class Cart(object):
         # Return cart items in a structured format for API serialization
         items = []
         for product_id, item in self.cart.items():
-            try:
-                product = Product.objects.get(id=int(product_id))
-                items.append(
-                    {
-                        "product_id": product_id,
-                        "product_name": product.name,
-                        "quantity": item["quantity"],
-                        "price": str(item["price"]),
-                        "total_price": str(
-                            Decimal(item["price"]) * int(item["quantity"])
-                        ),
-                    }
-                )
-            except Product.DoesNotExist:
-                continue  # Handle missing product gracefully
+            get_item = self.get_item(product_id=product_id, item=item)
+            if get_item is None:
+                continue
+            items.append(get_item)
+
         return items
+
+    def get_item(self, product_id: int, item=None):
+        item = item or self.cart.get(str(product_id))
+        if item is None:
+            return None
+        try:
+            product = Product.objects.get(id=int(product_id))
+            item_data = {
+                "product_id": product_id,
+                "product_name": product.name,
+                "quantity": item["quantity"],
+                "price": str(item["price"]),
+                "total_price": str(Decimal(item["price"]) * int(item["quantity"])),
+            }
+            return item_data
+        except Product.DoesNotExist:
+            ...
+        return None

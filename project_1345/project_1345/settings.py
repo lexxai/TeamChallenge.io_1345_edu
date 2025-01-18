@@ -138,6 +138,22 @@ SESSION_COOKIE_AGE = (
 )  # 180 days. Default 1209600 (2 weeks, in seconds)
 CART_SESSION_ID = "cart"
 
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "unique-snowflake",
+    },
+    "redis": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379",
+    },
+    "db": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "app_cache_table",
+    },
+}
+
+
 # REST_FRAMEWORK = {
 #     "DEFAULT_RENDERER_CLASSES": [
 #         "rest_framework.renderers.JSONRenderer",  # Only render JSON responses
@@ -153,10 +169,8 @@ REST_FRAMEWORK = {
 }
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "My API",
-    "DESCRIPTION": "API documentation for my project.",
+    "TITLE": "PROJECT 1345 - API",
+    "DESCRIPTION": "API documentation for project 1345.",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,  # Prevent serving schema directly
-    # "SWAGGER_UI_DIST": "spectacular",  # Use bundled Swagger UI
-    # "SWAGGER_UI_FAVICON_HREF": "spectacular",  # Optional
 }

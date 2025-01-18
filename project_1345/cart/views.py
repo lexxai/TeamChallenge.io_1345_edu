@@ -35,7 +35,11 @@ class CartView(APIView):
             400: "Bad request if parameters are invalid.",
         },
     )
-    def get(self, request):
+    def get(self, request, product_id: int = None, *args, **kwargs):
+
+        if product_id is not None:
+            cart = Cart(request)
+            return Response(cart.get_item(product_id))
 
         query_params = request.query_params
 
