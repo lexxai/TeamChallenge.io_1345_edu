@@ -154,24 +154,21 @@ class CartView(APIView):
     def delete(self, request, product_id: int = None, *args, **kwargs):
         """Remove an item from the cart or clear the entire cart"""
         product_id = product_id or request.data.get("product_id")
-
         cart = Cart(request)
-
-        if product_id:
-            # Remove the specific product from the cart
-            result = cart.remove(product_id)
-            if not result:
-                return Response(
-                    {"message": "Item not found in cart"},
-                    status=status.HTTP_404_NOT_FOUND,
-                )
-            return Response(
-                {"message": "Item removed from cart"}, status=status.HTTP_204_NO_CONTENT
-            )
-        else:
+        if product_id is None:
             # No product_id provided, so clear the entire cart
             cart.clear()
             return Response(
                 {"message": "Cart cleared successfully"},
                 status=status.HTTP_204_NO_CONTENT,
             )
+        # Remove the specific product from the cart
+        result = cart.remove(product_id)
+        if not result:
+            return Response(
+                {"message": "Item not found in cart"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        return Response(
+            {"message": "Item removed from cart"}, status=status.HTTP_204_NO_CONTENT
+        )
