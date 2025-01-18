@@ -39,7 +39,10 @@ class CartView(APIView):
 
         if product_id is not None:
             cart = Cart(request)
-            return Response(cart.get_item(product_id))
+            item = cart.get_item(product_id)
+            if item is None:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(item)
 
         query_params = request.query_params
 
