@@ -151,9 +151,9 @@ class CartView(APIView):
         """Update an item in the cart"""
         self.put(request, product_id)
 
-    def delete(self, request):
+    def delete(self, request, product_id: int = None, *args, **kwargs):
         """Remove an item from the cart or clear the entire cart"""
-        product_id = request.data.get("product_id")
+        product_id = product_id or request.data.get("product_id")
 
         cart = Cart(request)
 
