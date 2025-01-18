@@ -1,15 +1,68 @@
+from rest_framework.exceptions import ValidationError
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.types import OpenApiTypes
 from .cart import Cart
 from .serializers import CartItemSerializer, CartContentSerializer
 
 
 class CartView(APIView):
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="quantity",
+                description="If present, returns the total quantity of items in the cart.",
+                required=False,
+                type=OpenApiTypes.BOOL,
+            ),
+            OpenApiParameter(
+                name="items",
+                description="If present, returns the total number of distinct items in the cart.",
+                required=False,
+                type=OpenApiTypes.BOOL,
+            ),
+            OpenApiParameter(
+                name="total_price",
+                description="If present, returns the total price of all items in the cart.",
+                required=False,
+                type=OpenApiTypes.BOOL,
+            ),
+        ],
+        responses={
+            200: OpenApiTypes.OBJECT,
+            400: "Bad request if parameters are invalid.",
+        },
+    )
     def get(self, request):
+
+        query_params = request.query_params
+
+        # Validate allowed parameters
+        allowed_params = {"quantity", "items", "total_price"}
+        invalid_params = set(query_params.keys()) - allowed_params
+        if invalid_params:
+            raise ValidationError(
+                {"error": f"Invalid query parameters: {', '.join(invalid_params)}"}
+            )
+
+        get_total_quantity = "quantity" in query_params
+        get_total_items = "items" in query_params
+        get_total_price = "total_price" in query_params
         """Retrieve cart contents"""
         cart = Cart(request)
+
+        if get_total_quantity:
+            return Response({"total_quantity": len(cart)})
+
         cart_items = cart.get_cart_items()
+
+        if get_total_items:
+            return Response({"cart_items": len(cart_items)})
+
+        if get_total_price:
+            return Response({"total_price": cart.get_sub_total_price()})
 
         # Prepare the cart items data for serialization
         cart_items_data = (

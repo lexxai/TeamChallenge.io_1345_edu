@@ -79,7 +79,14 @@ class Cart(object):
         return sum(item["quantity"] for item in self.cart.values())
 
     def get_sub_total_price(self):
-        return sum(item["price"] * item["quantity"] for item in self.cart.values())
+        return str(
+            Decimal(
+                sum(
+                    Decimal(item["price"]) * int(item["quantity"])
+                    for item in self.cart.values()
+                )
+            )
+        )
 
     def clear(self):
         """
