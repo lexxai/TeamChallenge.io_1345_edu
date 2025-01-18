@@ -71,6 +71,8 @@ class Cart(object):
         for product in products:
             cart[str(product.id)]["product"] = product
         for item in cart.values():
+            item["product_id"] = item["product"].id
+            item["product_name"] = item["product"].name
             item["price"] = Decimal(item["price"])
             item["total_price"] = item["price"] * item["quantity"]
             yield item
@@ -97,6 +99,9 @@ class Cart(object):
         self.save()
 
     def get_cart_items(self):
+        return self
+
+    def get_cart_items_list(self) -> list:
         # Return cart items in a structured format for API serialization
         items = []
         for product_id, item in self.cart.items():
@@ -107,7 +112,7 @@ class Cart(object):
 
         return items
 
-    def get_item(self, product_id: int, item=None):
+    def get_item(self, product_id: int, item=None) -> dict:
         item = item or self.cart.get(str(product_id))
         if item is None:
             return None

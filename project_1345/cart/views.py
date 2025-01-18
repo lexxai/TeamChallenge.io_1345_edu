@@ -72,23 +72,25 @@ class CartView(APIView):
             return Response({"total_price": cart.get_sub_total_price()})
 
         # Prepare the cart items data for serialization
-        cart_items_data = (
-            [
-                {
-                    "product_id": item["product_id"],
-                    "product_name": item["product_name"],
-                    "quantity": item["quantity"],
-                    "price": item["price"],  # Ensure price is a string or Decimal
-                    "total_price": item["total_price"],  # Calculate total price
-                }
-                for item in cart_items
-            ]
-            if cart_items
-            else []
-        )
+        # cart_items_data = (
+        #     [
+        #         {
+        #             "product_id": item["product_id"],
+        #             "product_name": item["product_name"],
+        #             "quantity": item["quantity"],
+        #             "price": item["price"],  # Ensure price is a string or Decimal
+        #             "total_price": item["total_price"],  # Calculate total price
+        #         }
+        #         for item in cart_items
+        #     ]
+        #     if cart_items
+        #     else []
+        # )
 
         # Serialize the cart items data
-        serializer = CartContentSerializer(cart_items_data, many=True)
+        # for item in cart_items:
+        #     print(item)
+        serializer = CartContentSerializer(cart, many=True)
         return Response(serializer.data)
 
     def post(self, request):
