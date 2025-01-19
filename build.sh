@@ -20,6 +20,8 @@ python manage.py migrate
 # Used env DJANGO_SUPERUSER_PASSWORD
 python manage.py createsuperuser --username admin --email admin@localhost --no-input
 
+# DEV ONLY, CRUD
+python manage.py populate_base_values
 
 #python manage.py runserver --insecure --noreload
 
