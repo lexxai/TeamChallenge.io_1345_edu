@@ -8,7 +8,19 @@ from product.models import Product
 class Command(BaseCommand):
     help = "Populate the database with base values for development"
 
-    def handle(self, *args, **kwargs):
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--reset",
+            action="store_true",  # This makes the argument a flag (no value required)
+            help="Delete all existing products and categories before populating",
+        )
+
+    def handle(self, *args, **options):
+        if options.get("reset"):
+            Category.objects.all().delete()
+            CategorySchema.objects.all().delete()
+            Product.objects.all().delete()
+            self.stdout.write("Database reset.")
         self.add_categories()
         self.add_products()
 
@@ -116,6 +128,7 @@ class Command(BaseCommand):
                     name=product_data["name"],
                     defaults={
                         "price": product_data["price"],
+                        "description": product_data["description"],
                         "category": category,
                         "property": product_data.get("property", {}),
                     },
