@@ -69,5 +69,5 @@ urlpatterns = [
     ),
     path("admin/", admin.site.urls),
     path("api/v1/cart/", include("cart.urls")),
-    path("api/v1/products/", product.api_views.ProductList.as_view()),
+    path("api/v1/products/", include("product.urls")),
 ]
