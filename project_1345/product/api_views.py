@@ -1,5 +1,6 @@
 import json
 
+from django_filters import FilterSet, CharFilter
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView, CreateAPIView
 from django_filters.rest_framework import DjangoFilterBackend
@@ -15,29 +16,49 @@ class ProductsPagination(LimitOffsetPagination):
     max_limit = 100
 
 
-class ProductList(ListAPIView):
-    queryset = Product.objects.all()
-    serializer_class = ProductSerializer
-    filter_backends = (DjangoFilterBackend, SearchFilter)
-    filterset_fields = ("id", "category")
-    search_fields = ("name", "description")
-    pagination_class = ProductsPagination
+class ProductFilter(FilterSet):
+    property = CharFilter(method="filter_property")
 
-    def get_queryset(self):
-        queryset = Product.objects.all()
-        property_filter = self.request.query_params.get("property", None)
-        if property_filter:
-            try:
-                # Convert the property string to a dictionary
-                property_dict = json.loads(property_filter)
+    class Meta:
+        model = Product
+        fields = ("id", "category")
+
+    def filter_property(self, queryset, name, value):
+        try:
+            property_dict = json.loads(value)
+            if property_dict:
                 params = {
                     f"property__{key}": value for key, value in property_dict.items()
                 }
                 queryset = queryset.filter(**params)
-            except json.JSONDecodeError:
-                # Handle cases where the property value is not valid JSON
-                raise ValueError("Invalid JSON format for property filter")
-        return queryset
+            return queryset
+        except (ValueError, TypeError, json.JSONDecodeError):
+            return queryset.none()
+
+
+class ProductList(ListAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    filter_backends = (DjangoFilterBackend, SearchFilter)
+    filterset_class = ProductFilter
+    search_fields = ("name", "description")
+    pagination_class = ProductsPagination
+
+    # def get_queryset(self):
+    #     queryset = Product.objects.all()
+    #     property_filter = self.request.query_params.get("property", None)
+    #     if property_filter:
+    #         try:
+    #             # Convert the property string to a dictionary
+    #             property_dict = json.loads(property_filter)
+    #             params = {
+    #                 f"property__{key}": value for key, value in property_dict.items()
+    #             }
+    #             queryset = queryset.filter(**params)
+    #         except json.JSONDecodeError:
+    #             # Handle cases where the property value is not valid JSON
+    #             raise ValueError("Invalid JSON format for property filter")
+    #     return queryset
 
 
 class ProductCreate(CreateAPIView):
