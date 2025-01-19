@@ -11,7 +11,9 @@ pip install gunicorn --no-input
 #poetry install --with deploy -n
 
 # Convert static asset files
+pushd project_1345
 python manage.py collectstatic --no-input
 
 # Apply any outstanding database migrations
 python manage.py migrate
+popd > /dev/null
