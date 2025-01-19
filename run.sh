@@ -4,7 +4,7 @@ set -o errexit
 
 pushd project_1345
 
-python manage.py runserver --insecure --noreload --port 8000 --host 0.0.0.0
+python manage.py runserver --insecure --noreload 0.0.0.0:8000
 
 popd > /dev/null
 
