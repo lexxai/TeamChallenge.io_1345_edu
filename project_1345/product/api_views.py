@@ -1,4 +1,5 @@
-from rest_framework.generics import ListAPIView
+from rest_framework.exceptions import ValidationError
+from rest_framework.generics import ListAPIView, CreateAPIView
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
 from rest_framework.pagination import LimitOffsetPagination
@@ -16,7 +17,7 @@ class ProductList(ListAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     filter_backends = (DjangoFilterBackend, SearchFilter)
-    filter_fields = ("id", "category")
+    filter_fields = ("id", "category", "property")
     search_fields = ("name", "description")
     pagination_class = ProductsPagination
 
@@ -34,3 +35,16 @@ class ProductList(ListAPIView):
     #             sale_end__gte=now,
     #         )
     #     return queryset
+
+
+class ProductCreate(CreateAPIView):
+    searializer_class = ProductSerializer
+
+    def create(self, request, *args, **kwargs):
+        try:
+            price = request.data.get("price")
+            if price is not None and price <= 0.0:
+                raise ValidationError({"price": "Price must be greater than 0"})
+        except ValueError:
+            raise ValidationError({"price": "Invalid price format"})
+        return super().create(request, *args, **kwargs)
