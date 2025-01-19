@@ -30,7 +30,8 @@ from drf_spectacular.views import (
     SpectacularRedocView,
 )
 
-from cart.views import CartView
+
+import product.api_views
 
 # schema_view = get_schema_view(
 #     openapi.Info(
@@ -68,4 +69,5 @@ urlpatterns = [
     ),
     path("admin/", admin.site.urls),
     path("api/v1/cart/", include("cart.urls")),
+    path("api/v1/products/", product.api_views.ProductList.as_view()),
 ]

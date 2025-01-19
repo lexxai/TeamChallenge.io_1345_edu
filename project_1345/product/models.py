@@ -66,5 +66,8 @@ class Product(models.Model):
 
         super(Product, self).save(*args, **kwargs)
 
+    def __repr__(self):
+        return '<Product object ({}) "{}">'.format(self.id, self.name)
+
     def __str__(self):
         return self.name
