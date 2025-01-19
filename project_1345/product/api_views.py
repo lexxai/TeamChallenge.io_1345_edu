@@ -38,7 +38,7 @@ class ProductList(ListAPIView):
 
 
 class ProductCreate(CreateAPIView):
-    searializer_class = ProductSerializer
+    serializer_class = ProductSerializer
 
     def create(self, request, *args, **kwargs):
         try:
