@@ -56,6 +56,11 @@ urlpatterns = [
     #     name="schema-swagger-ui",
     # ),
     # path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
+    path(
+        "",
+        SpectacularSwaggerView.as_view(url_name="schema"),
+        name="swagger-root",
+    ),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     # Swagger UI
     path(
@@ -70,4 +75,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/cart/", include("cart.urls")),
     path("api/v1/products/", include("product.urls")),
+    path("api/v1/category/", include("category.urls")),
 ]
