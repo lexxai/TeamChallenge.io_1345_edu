@@ -26,48 +26,18 @@ class ProductList(ListAPIView):
     def get_queryset(self):
         queryset = Product.objects.all()
         property_filter = self.request.query_params.get("property", None)
-
         if property_filter:
             try:
                 # Convert the property string to a dictionary
                 property_dict = json.loads(property_filter)
-                print(property_dict)
-                # Apply the filter
-                # queryset = queryset.filter(property__contains=property_dict)
-                for product in queryset:
-                    print(product.property)
-                filtered_products = [
-                    product
-                    for product in queryset
-                    if product.property
-                    and all(
-                        product.property.get(key) == value
-                        for key, value in property_dict.items()
-                    )
-                ]
-                return Product.objects.filter(
-                    id__in=[product.id for product in filtered_products]
-                )
+                params = {
+                    f"property__{key}": value for key, value in property_dict.items()
+                }
+                queryset = queryset.filter(**params)
             except json.JSONDecodeError:
                 # Handle cases where the property value is not valid JSON
                 raise ValueError("Invalid JSON format for property filter")
-
         return queryset
-
-    # def get_queryset(self):
-    #     on_sale = self.request.query_params.get("on_sale", None)
-    #     if on_sale is None:
-    #         return super().get_queryset()
-    #     queryset = Product.objects.all()
-    #     if on_sale.lower() == "true":
-    #         from django.utils import timezone
-    #
-    #         now = timezone.now()
-    #         return queryset.filter(
-    #             sale_start__lte=now,
-    #             sale_end__gte=now,
-    #         )
-    #     return queryset
 
 
 class ProductCreate(CreateAPIView):
