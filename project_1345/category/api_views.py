@@ -8,7 +8,7 @@ from category.serializers import CategorySerializer, CategorySchemaSerializer
 class CategoryList(ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    filterset_fields = ["id", "name"]
+    filterset_fields = ["id", "name", "active", "parent"]
 
 
 class CategorySchemaList(ListAPIView):
