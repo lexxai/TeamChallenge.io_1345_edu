@@ -16,6 +16,9 @@ drf-spectacular = "^0.28.0"
 django-filter = "^24.3"
 
 
+[tool.poetry.group.deploy.dependencies]
+gunicorn = "^23.0.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
