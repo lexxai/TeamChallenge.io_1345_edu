@@ -43,7 +43,7 @@ class ProductCreate(CreateAPIView):
     def create(self, request, *args, **kwargs):
         try:
             price = request.data.get("price")
-            if price is not None and price <= 0.0:
+            if price is not None and float(price) <= 0.0:
                 raise ValidationError({"price": "Price must be greater than 0"})
         except ValueError:
             raise ValidationError({"price": "Invalid price format"})
