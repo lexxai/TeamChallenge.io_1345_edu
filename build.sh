@@ -3,9 +3,12 @@
 set -o errexit
 
 # Modify this line as needed for your package manager (pip, poetry, etc.)
-#pip install -r requirements.txt
-poetry install -n
-poetry install --with deploy -n
+pip install --upgrade pip
+pip install -r requirements.txt -q  --no-input
+pip install gunicorn --no-input
+
+#poetry install -n
+#poetry install --with deploy -n
 
 # Convert static asset files
 python manage.py collectstatic --no-input
