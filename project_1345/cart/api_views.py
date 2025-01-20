@@ -9,6 +9,8 @@ from .serializers import CartItemSerializer, CartContentSerializer
 
 
 class CartView(APIView):
+    serializer_class = CartItemSerializer
+
     @extend_schema(
         parameters=[
             OpenApiParameter(

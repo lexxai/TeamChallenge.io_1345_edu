@@ -65,14 +65,12 @@ class Cart(object):
 
     def __iter__(self):
         product_ids = self.cart.keys()
-        # get the product objects and add them to the cart
-        products = Product.objects.filter(id__in=product_ids)
-        cart = self.cart.copy()
-        for product in products:
-            cart[str(product.id)]["product"] = product
-        for item in cart.values():
-            item["product_id"] = item["product"].id
-            item["product_name"] = item["product"].name
+        # Iterate over products directly from the queryset
+        for product in Product.objects.filter(id__in=product_ids):
+            item = self.cart[str(product.id)].copy()  # Get cart details for the product
+            item["product"] = product
+            item["product_id"] = product.id
+            item["product_name"] = product.name
             item["price"] = Decimal(item["price"])
             item["total_price"] = item["price"] * item["quantity"]
             yield item

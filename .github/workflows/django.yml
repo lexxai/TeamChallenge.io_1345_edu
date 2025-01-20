@@ -2,7 +2,7 @@ name: Django CI
 
 on:
   push:
-    branches: [ "dev", "dev-lexxai" ]
+    branches: [ "dev", "dev-lexxai", "dev-lexxai-product" ]
   pull_request:
     branches: [ "dev", "dev-lexxai" ]
 
