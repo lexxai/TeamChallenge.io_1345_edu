@@ -1,5 +1,7 @@
+from django.contrib.postgres.indexes import GinIndex
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Q
 
 from category.models import Category, CategorySchema
 
@@ -15,6 +17,28 @@ class Product(models.Model):
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["-updated_at"]
+
+        indexes = [
+            models.Index(fields=["-updated_at"]),
+            models.Index(fields=["category"]),
+            models.Index(fields=["name"]),
+            models.Index(fields=["price"]),
+            models.Index(fields=["name", "price"]),
+            models.Index(fields=["category", "name", "price"]),
+            models.Index(Q(active=True), name="active_products_idx"),
+        ]
+
+        def __init_subclass__(cls, **kwargs):
+            super().__init_subclass__(**kwargs)
+            from django.db import connection
+
+            if connection.vendor == "postgresql":
+                cls._meta.indexes.append(
+                    GinIndex(fields=["property"])
+                )  # Add GIN index dynamically for PostgreSQL only
 
     def save(self, *args, **kwargs):
         # Get the CategorySchema for the category
