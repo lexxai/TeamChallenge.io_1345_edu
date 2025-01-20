@@ -1,12 +1,17 @@
-# workflow triggers
 on:
+  pull_request:
   push:
     branches: [ dev-lexxai, dev-lexxai-product ]
-  pull_request:
-    branches: [ dev-lexxai, dev-lexxai-product  ]
-  workflow_dispatch:
 
-  # Allows external webhook trigger
-  repository_dispatch:
-    types:
-      - webhook
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy
+        # Only run this step if the branch is main
+        if: github.ref == 'refs/heads/dev-lexxai-product'
+        env:
+          deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          curl "$deploy_url"
