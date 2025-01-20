@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 
+# from django.conf.global_settings import STATIC_ROOT
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -25,23 +27,25 @@ SECRET_KEY = "django-insecure-^rta3n+_$bb(!p_a6fq4qk)#iu&o5w2j9z&yeo=4fkk_-k&fw!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
+CSRF_TRUSTED_ORIGINS = ["https://*.onrender.com"]
 
 
 # Application definition
 
 INSTALLED_APPS = [
     "rest_framework",
+    "django_filters",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "drf_yasg",
     "cart",
     "category",
     "product",
+    "drf_spectacular",
 ]
 
 MIDDLEWARE = [
@@ -121,6 +125,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "static"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -135,6 +140,22 @@ SESSION_COOKIE_AGE = (
 )  # 180 days. Default 1209600 (2 weeks, in seconds)
 CART_SESSION_ID = "cart"
 
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "unique-snowflake",
+    },
+    "redis": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379",
+    },
+    "db": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "app_cache_table",
+    },
+}
+
+
 # REST_FRAMEWORK = {
 #     "DEFAULT_RENDERER_CLASSES": [
 #         "rest_framework.renderers.JSONRenderer",  # Only render JSON responses
@@ -142,8 +163,17 @@ CART_SESSION_ID = "cart"
 # }
 
 REST_FRAMEWORK = {
-    "DEFAULT_RENDERER_CLASSES": [
-        "rest_framework.renderers.JSONRenderer",
-        "rest_framework.renderers.BrowsableAPIRenderer",
-    ]
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
+    # "DEFAULT_RENDERER_CLASSES": [
+    #     "rest_framework.renderers.JSONRenderer",
+    #     "rest_framework.renderers.BrowsableAPIRenderer",
+    # ],
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "PROJECT 1345 - API",
+    "DESCRIPTION": "API documentation for project 1345.",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,  # Prevent serving schema directly
 }
