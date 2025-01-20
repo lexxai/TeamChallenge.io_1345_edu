@@ -1,5 +1,6 @@
 import json
 
+from django.db import connection
 from django_filters import FilterSet, CharFilter
 from rest_framework.exceptions import ValidationError
 from django.core.exceptions import ValidationError as DjangoValidationError
@@ -76,7 +77,10 @@ class ProductListCreateUpdateView(
     serializer_class = ProductSerializer
     filter_backends = (DjangoFilterBackend, SearchFilter)
     filterset_class = ProductFilter
-    search_fields = ("name", "description")
+    if connection.vendor == "postgresql":
+        search_fields = ("search_vector",)
+    else:
+        search_fields = ("name", "description")
     pagination_class = ProductsPagination
 
     def get(self, request, *args, **kwargs):
