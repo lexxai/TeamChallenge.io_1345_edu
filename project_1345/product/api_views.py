@@ -12,6 +12,7 @@ from rest_framework.mixins import (
     CreateModelMixin,
     RetrieveModelMixin,
     UpdateModelMixin,
+    DestroyModelMixin,
 )
 from rest_framework.pagination import LimitOffsetPagination
 
@@ -72,6 +73,7 @@ class ProductListCreateUpdateView(
     CreateModelMixin,
     RetrieveModelMixin,
     UpdateModelMixin,
+    DestroyModelMixin,
 ):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
@@ -105,6 +107,8 @@ class ProductListCreateUpdateView(
 
     def put(self, request, *args, **kwargs):
         """Handle PUT request (full update)"""
+        if "pk" not in kwargs:
+            raise ValidationError({"pk": "Primary key (pk) is required."})
         try:
             return self.update(request, *args, **kwargs)
         except DjangoValidationError as e:
@@ -112,10 +116,17 @@ class ProductListCreateUpdateView(
 
     def patch(self, request, *args, **kwargs):
         """Handle PATCH request (partial update)"""
+        if "pk" not in kwargs:
+            raise ValidationError({"pk": "Primary key (pk) is required."})
         try:
             return self.partial_update(request, *args, **kwargs)
         except DjangoValidationError as e:
             raise ValidationError(e.message_dict)
+
+    def delete(self, request, *args, **kwargs):
+        if "pk" not in kwargs:
+            raise ValidationError({"pk": "Primary key (pk) is required."})
+        return self.destroy(request, *args, **kwargs)
 
     def get_operation_id(self):
         print("get_operation_id")
