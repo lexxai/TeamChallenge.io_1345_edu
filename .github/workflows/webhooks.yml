@@ -1,3 +1,5 @@
+name: DEPLOY
+
 on:
   pull_request:
   push:
