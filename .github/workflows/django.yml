@@ -13,7 +13,7 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.12, 3.13]
+        python-version: [3,11, 3.12, 3.13]
 
     steps:
     - uses: actions/checkout@v4
@@ -30,4 +30,5 @@ jobs:
         cd project_1345
         export PYTHONPATH=.
         python manage.py migrate
+        python manage.py populate_base_values
         python manage.py test
