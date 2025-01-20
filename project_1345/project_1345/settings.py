@@ -10,12 +10,20 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+import os
+from email.policy import default
 from pathlib import Path
+
+import redis as pure_redis
+from django.core.cache.backends import redis
+from dotenv import load_dotenv
 
 # from django.conf.global_settings import STATIC_ROOT
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+load_dotenv()
 
 
 # Quick-start development settings - unsuitable for production
@@ -27,9 +35,14 @@ SECRET_KEY = "django-insecure-^rta3n+_$bb(!p_a6fq4qk)#iu&o5w2j9z&yeo=4fkk_-k&fw!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
-CSRF_TRUSTED_ORIGINS = ["https://*.onrender.com"]
 
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost").split(",")
+CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "http://localhost").split(",")
+
+# Get the Redis host, port, and database from the environment
+REDIS_HOST = os.getenv("REDIS_HOST", "localhost")  # Default to 'localhost' if not set
+REDIS_PORT = os.getenv("REDIS_PORT", 6379)  # Default to 6379 if not set
+REDIS_DB = os.getenv("REDIS_DB", 0)  # Default to 0 if not set
 
 # Application definition
 
@@ -140,20 +153,45 @@ SESSION_COOKIE_AGE = (
 )  # 180 days. Default 1209600 (2 weeks, in seconds)
 CART_SESSION_ID = "cart"
 
-CACHES = {
+CACHES_CONFIG = {
     "default": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
         "LOCATION": "unique-snowflake",
     },
     "redis": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379",
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
     },
     "db": {
         "BACKEND": "django.core.cache.backends.db.DatabaseCache",
         "LOCATION": "app_cache_table",
     },
 }
+
+
+# Function to check if Redis is live
+def is_redis_live():
+    try:
+        r = pure_redis.StrictRedis(
+            host=REDIS_HOST,
+            port=REDIS_PORT,
+            db=REDIS_DB,
+            socket_connect_timeout=5,
+        )
+        r.ping()  # Ping Redis to check if it's alive
+        return True
+    except pure_redis.exceptions.ConnectionError:
+        return False
+
+
+if is_redis_live():
+    CACHES = {"default": CACHES_CONFIG["redis"]}
+    print("Redis is live, used for caching.")
+else:
+    CACHES = {"default": CACHES_CONFIG["default"]}
 
 
 # REST_FRAMEWORK = {
