@@ -23,21 +23,25 @@ from dotenv import load_dotenv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-load_dotenv()
-
+if load_dotenv():
+    print("Loaded .env file")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-^rta3n+_$bb(!p_a6fq4qk)#iu&o5w2j9z&yeo=4fkk_-k&fw!"
+SECRET_KEY = os.getenv(
+    "SECRET_KEY", "django-insecure-^rta3n+_$bb(!p_a6fq4qk)#iu&o5w2j9z&yeo=4fkk_-k&fw!"
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost").split(",")
-CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "http://localhost").split(",")
+CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "http://localhost:8000").split(
+    ","
+)
 
 # Get the Redis host, port, and database from the environment
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")  # Default to 'localhost' if not set
@@ -48,6 +52,7 @@ REDIS_DB = os.getenv("REDIS_DB", 0)  # Default to 0 if not set
 
 INSTALLED_APPS = [
     "rest_framework",
+    "drf_spectacular",
     "django_filters",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -58,7 +63,6 @@ INSTALLED_APPS = [
     "cart",
     "category",
     "product",
-    "drf_spectacular",
 ]
 
 MIDDLEWARE = [
