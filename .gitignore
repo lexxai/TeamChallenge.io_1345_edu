@@ -171,3 +171,4 @@ cython_debug/
 .pypirc
 poetry.lock
 /project_1345/static/
+/project_1345/dump.rdb

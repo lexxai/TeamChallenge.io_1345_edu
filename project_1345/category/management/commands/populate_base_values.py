@@ -35,7 +35,10 @@ class Command(BaseCommand):
         ]
         schemas = [
             {"category": "Electronics", "schema": {"brand": {"type": "str"}}},
-            {"category": "Mobile Phones", "schema": {"brand": {"type": "str", "required": True}}},
+            {
+                "category": "Mobile Phones",
+                "schema": {"brand": {"type": "str", "required": True}},
+            },
             {"category": "Home Appliances", "schema": {"power": {"type": "int"}}},
             {"category": "Clothing", "schema": {"size": {"type": "str"}}},
         ]
