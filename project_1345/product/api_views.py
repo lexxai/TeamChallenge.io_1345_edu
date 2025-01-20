@@ -21,7 +21,7 @@ class ProductFilter(FilterSet):
 
     class Meta:
         model = Product
-        fields = ("id", "category")
+        fields = ("id", "category", "active", "owner")
 
     def filter_property(self, queryset, name, value):
         try:
@@ -43,22 +43,6 @@ class ProductList(ListAPIView):
     filterset_class = ProductFilter
     search_fields = ("name", "description")
     pagination_class = ProductsPagination
-
-    # def get_queryset(self):
-    #     queryset = Product.objects.all()
-    #     property_filter = self.request.query_params.get("property", None)
-    #     if property_filter:
-    #         try:
-    #             # Convert the property string to a dictionary
-    #             property_dict = json.loads(property_filter)
-    #             params = {
-    #                 f"property__{key}": value for key, value in property_dict.items()
-    #             }
-    #             queryset = queryset.filter(**params)
-    #         except json.JSONDecodeError:
-    #             # Handle cases where the property value is not valid JSON
-    #             raise ValueError("Invalid JSON format for property filter")
-    #     return queryset
 
 
 class ProductCreate(CreateAPIView):
