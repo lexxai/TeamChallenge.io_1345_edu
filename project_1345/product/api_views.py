@@ -112,3 +112,21 @@ class ProductListCreateUpdateView(
             return self.partial_update(request, *args, **kwargs)
         except DjangoValidationError as e:
             raise ValidationError(e.message_dict)
+
+    def get_operation_id(self):
+        """Override to provide unique operation IDs for different methods."""
+        if 'pk' in self.kwargs:  # This checks if the pk parameter is provided in the URL
+            # For detail view actions (POST with pk, PUT, PATCH)
+            if self.action == 'update':
+                return 'api_v1_products_update'
+            elif self.action == 'partial_update':
+                return 'api_v1_products_partial_update'
+            elif self.action == 'retrieve':
+                return 'api_v1_products_detail'
+        else:
+            # For list or create actions (POST without pk)
+            if self.action == 'list':
+                return 'api_v1_products_list'
+            elif self.action == 'create':
+                return 'api_v1_products_create'
+        return super().get_operation_id()
