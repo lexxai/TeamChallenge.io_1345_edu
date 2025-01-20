@@ -11,11 +11,9 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 import os
-from email.policy import default
 from pathlib import Path
 
 import redis as pure_redis
-from django.core.cache.backends import redis
 from dotenv import load_dotenv
 
 # from django.conf.global_settings import STATIC_ROOT
@@ -38,7 +36,7 @@ SECRET_KEY = os.getenv(
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost").split(",")
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "127.0.0.1, localhost").split(",")
 CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "http://localhost:8000").split(
     ","
 )
