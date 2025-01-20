@@ -2,6 +2,7 @@ import json
 
 from django_filters import FilterSet, CharFilter
 from rest_framework.exceptions import ValidationError
+from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework.generics import ListAPIView, CreateAPIView, GenericAPIView
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
@@ -79,4 +80,8 @@ class ProductListCreateView(GenericAPIView, ListModelMixin, CreateModelMixin):
                 raise ValidationError({"price": "Price must be greater than 0"})
         except ValueError:
             raise ValidationError({"price": "Invalid price format"})
-        return self.create(request, *args, **kwargs)
+        try:
+            return self.create(request, *args, **kwargs)
+        except DjangoValidationError as e:
+            # Convert Django's ValidationError into DRF's ValidationError
+            raise ValidationError(e.message_dict or e.message)
