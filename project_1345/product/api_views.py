@@ -114,21 +114,22 @@ class ProductListCreateUpdateView(
             raise ValidationError(e.message_dict)
 
     def get_operation_id(self):
+        print("get_operation_id")
         """Override to provide unique operation IDs for different methods."""
-        if (
-            "pk" in self.kwargs
-        ):  # This checks if the pk parameter is provided in the URL
-            # For detail view actions (POST with pk, PUT, PATCH)
-            if self.action == "update":
-                return "api_v1_products_update"
-            elif self.action == "partial_update":
-                return "api_v1_products_partial_update"
-            elif self.action == "retrieve":
+        if "pk" in self.kwargs:  # This checks if `pk` is present in the URL
+            # For detail view actions (retrieve, update, partial_update)
+            if self.request.method == "GET":
                 return "api_v1_products_detail"
+            elif self.request.method == "PUT":
+                return "api_v1_products_update"
+            elif self.request.method == "PATCH":
+                return "api_v1_products_partial_update"
+            elif self.request.method == "DELETE":
+                return "api_v1_products_destroy"
         else:
             # For list or create actions (POST without pk)
-            if self.action == "list":
+            if self.request.method == "GET":
                 return "api_v1_products_list"
-            elif self.action == "create":
+            elif self.request.method == "POST":
                 return "api_v1_products_create"
         return super().get_operation_id()
