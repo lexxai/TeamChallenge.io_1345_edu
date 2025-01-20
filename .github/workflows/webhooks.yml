@@ -1,15 +1,15 @@
 name: DEPLOY
 
-on:
-  workflow_run:
-    workflows: ["Django CI"]
-    types:
-      - completed
-
 # on:
-#   pull_request:
-#   push:
-#     branches: [ dev-lexxai, dev-lexxai-product ]
+#   workflow_run:
+#     workflows: ["Django CI"]
+#     types:
+#       - completed
+
+on:
+  pull_request:
+  push:
+    branches: [ dev-lexxai, dev-lexxai-product ]
 
 jobs:
   ci:
