@@ -6,7 +6,12 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework.generics import ListAPIView, CreateAPIView, GenericAPIView
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
-from rest_framework.mixins import ListModelMixin, CreateModelMixin
+from rest_framework.mixins import (
+    ListModelMixin,
+    CreateModelMixin,
+    RetrieveModelMixin,
+    UpdateModelMixin,
+)
 from rest_framework.pagination import LimitOffsetPagination
 
 from .serializers import ProductSerializer
@@ -23,7 +28,7 @@ class ProductFilter(FilterSet):
 
     class Meta:
         model = Product
-        fields = ("id", "category", "active", "owner")
+        fields = ("category", "active", "owner")
 
     def filter_property(self, queryset, name, value):
         try:
@@ -60,7 +65,13 @@ class ProductCreate(CreateAPIView):
         return super().create(request, *args, **kwargs)
 
 
-class ProductListCreateView(GenericAPIView, ListModelMixin, CreateModelMixin):
+class ProductListCreateUpdateView(
+    GenericAPIView,
+    ListModelMixin,
+    CreateModelMixin,
+    RetrieveModelMixin,
+    UpdateModelMixin,
+):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     filter_backends = (DjangoFilterBackend, SearchFilter)
@@ -70,6 +81,8 @@ class ProductListCreateView(GenericAPIView, ListModelMixin, CreateModelMixin):
 
     def get(self, request, *args, **kwargs):
         """Handle GET request (list)"""
+        if "pk" in kwargs:  # Check if `pk` is in the URL
+            return self.retrieve(request, *args, **kwargs)  # Retrieve a single object
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
@@ -85,3 +98,17 @@ class ProductListCreateView(GenericAPIView, ListModelMixin, CreateModelMixin):
         except DjangoValidationError as e:
             # Convert Django's ValidationError into DRF's ValidationError
             raise ValidationError(e.message_dict or e.message)
+
+    def put(self, request, *args, **kwargs):
+        """Handle PUT request (full update)"""
+        try:
+            return self.update(request, *args, **kwargs)
+        except DjangoValidationError as e:
+            raise ValidationError(e.message_dict)
+
+    def patch(self, request, *args, **kwargs):
+        """Handle PATCH request (partial update)"""
+        try:
+            return self.partial_update(request, *args, **kwargs)
+        except DjangoValidationError as e:
+            raise ValidationError(e.message_dict)
