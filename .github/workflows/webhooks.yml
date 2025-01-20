@@ -1,0 +1,17 @@
+on:
+  pull_request:
+  push:
+    branches: [ dev-lexxai, dev-lexxai-product ]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy
+        # Only run this step if the branch is main
+        if: github.ref == 'refs/heads/dev-lexxai-product'
+        env:
+          deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          curl "$deploy_url"
