@@ -2,14 +2,14 @@ import json
 
 from django.db import connection
 from django_filters import FilterSet, CharFilter
-from drf_spectacular.types import OpenApiTypes
-from rest_framework import generics
+
+# from drf_spectacular.types import OpenApiTypes
 from rest_framework.exceptions import ValidationError
 from django.core.exceptions import ValidationError as DjangoValidationError
 
 # from rest_framework.generics import ListAPIView, CreateAPIView
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.filters import SearchFilter
+from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.generics import GenericAPIView
 from rest_framework.mixins import (
     ListModelMixin,
@@ -19,8 +19,9 @@ from rest_framework.mixins import (
     DestroyModelMixin,
 )
 from rest_framework.pagination import LimitOffsetPagination
-from drf_spectacular.utils import extend_schema, extend_schema_view
-from drf_spectacular.utils import OpenApiParameter
+
+# from drf_spectacular.utils import extend_schema, extend_schema_view
+# from drf_spectacular.utils import OpenApiParameter
 
 from .serializers import ProductSerializer
 from .models import Product
@@ -81,21 +82,22 @@ class ProductFilter(FilterSet):
 #     partial_update=extend_schema(exclude=True),
 #     destroy=extend_schema(exclude=True),
 # )
-class ProductListCreateUpdateView(
-    generics.GenericAPIView,
+class ProductListCreateView(
+    GenericAPIView,
     ListModelMixin,
     CreateModelMixin,
 ):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    filter_backends = (DjangoFilterBackend, SearchFilter)
+    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
     filterset_class = ProductFilter
     if connection.vendor == "postgresql":
         search_fields = ("search_vector",)
     else:
         search_fields = ("name", "description")
     pagination_class = ProductsPagination
-    ordering_fields = ["name", "price"]
+    ordering_fields = ["name", "price", "-updated_at"]
+    ordering = ["-updated_at"]  # Default ordering
 
     def get(self, request, *args, **kwargs):
         """Handle GET request (list or retrieve)"""
@@ -122,7 +124,7 @@ class ProductListCreateUpdateView(
     #     return super().options(request, *args, **kwargs)
 
 
-class ProductListCreateUpdateViewDetail(
+class ProductGetUpdateDeleteViewDetail(
     GenericAPIView,
     RetrieveModelMixin,
     UpdateModelMixin,
