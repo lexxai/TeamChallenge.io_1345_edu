@@ -36,13 +36,7 @@ class CartView(GenericAPIView):
             ),
         ],
     )
-    def get(self, request, product_id: int = None, *args, **kwargs):
-        if product_id is not None:
-            cart = Cart(request)
-            item = cart.get_item(product_id)
-            if item is None:
-                return Response(status=status.HTTP_404_NOT_FOUND)
-            return Response(item)
+    def get(self, request, *args, **kwargs):
 
         query_params = request.query_params
 
@@ -108,11 +102,24 @@ class CartView(GenericAPIView):
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, request, product_id: int, *args, **kwargs):
+
+class CartUpdateView(GenericAPIView):
+    serializer_class = CartItemSerializer
+
+    def get(self, request, product_id: int = None, *args, **kwargs):
+        if product_id is None:
+            raise ValidationError({"product_id", "Product ID is required"})
+        cart = Cart(request)
+        item = cart.get_item(product_id)
+        if item is None:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response(item)
+
+    def patch(self, request, product_id: int, *args, **kwargs):
         """Update an item in the cart"""
         if not product_id:
             return Response(
-                {"message": "Product ID is required"},
+                {"product_id": "Product ID is required"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         request.data["product_id"] = product_id
@@ -149,10 +156,6 @@ class CartView(GenericAPIView):
         # Return validation errors if serializer is invalid
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def patch(self, request, product_id: int):
-        """Update an item in the cart"""
-        self.put(request, product_id)
-
     def delete(self, request, product_id: int = None, *args, **kwargs):
         """Remove an item from the cart or clear the entire cart"""
         product_id = product_id or request.data.get("product_id")
@@ -168,7 +171,7 @@ class CartView(GenericAPIView):
         result = cart.remove(product_id)
         if not result:
             return Response(
-                {"message": "Item not found in cart"},
+                {"product_id": "Item not found in cart"},
                 status=status.HTTP_404_NOT_FOUND,
             )
         return Response(
