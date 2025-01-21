@@ -1,14 +1,17 @@
+from drf_spectacular.openapi import AutoSchema
 from rest_framework.exceptions import ValidationError
+from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.utils import extend_schema, OpenApiParameter, extend_schema_view
 from drf_spectacular.types import OpenApiTypes
+
 from .cart import Cart
 from .serializers import CartItemSerializer, CartContentSerializer
 
 
-class CartView(APIView):
+class CartView(GenericAPIView):
     serializer_class = CartItemSerializer
 
     @extend_schema(
@@ -32,13 +35,8 @@ class CartView(APIView):
                 type=OpenApiTypes.BOOL,
             ),
         ],
-        responses={
-            200: OpenApiTypes.OBJECT,
-            400: "Bad request if parameters are invalid.",
-        },
     )
     def get(self, request, product_id: int = None, *args, **kwargs):
-
         if product_id is not None:
             cart = Cart(request)
             item = cart.get_item(product_id)

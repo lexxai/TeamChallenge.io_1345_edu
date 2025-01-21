@@ -2,9 +2,12 @@ import json
 
 from django.db import connection
 from django_filters import FilterSet, CharFilter
+from drf_spectacular.types import OpenApiTypes
+from rest_framework import generics
 from rest_framework.exceptions import ValidationError
 from django.core.exceptions import ValidationError as DjangoValidationError
-from rest_framework.generics import ListAPIView, CreateAPIView, GenericAPIView
+
+# from rest_framework.generics import ListAPIView, CreateAPIView
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
 from rest_framework.mixins import (
@@ -15,6 +18,8 @@ from rest_framework.mixins import (
     DestroyModelMixin,
 )
 from rest_framework.pagination import LimitOffsetPagination
+from drf_spectacular.utils import extend_schema, extend_schema_view
+from drf_spectacular.utils import OpenApiParameter
 
 from .serializers import ProductSerializer
 from .models import Product
@@ -45,30 +50,38 @@ class ProductFilter(FilterSet):
             return queryset.none()
 
 
-class ProductList(ListAPIView):
-    queryset = Product.objects.all()
-    serializer_class = ProductSerializer
-    filter_backends = (DjangoFilterBackend, SearchFilter)
-    filterset_class = ProductFilter
-    search_fields = ("name", "description")
-    pagination_class = ProductsPagination
+# class ProductList(ListAPIView):
+#     queryset = Product.objects.all()
+#     serializer_class = ProductSerializer
+#     filter_backends = (DjangoFilterBackend, SearchFilter)
+#     filterset_class = ProductFilter
+#     search_fields = ("name", "description")
+#     pagination_class = ProductsPagination
+#
+#
+# class ProductCreate(CreateAPIView):
+#     serializer_class = ProductSerializer
+#
+#     def create(self, request, *args, **kwargs):
+#         try:
+#             price = request.data.get("price")
+#             if price is not None and float(price) <= 0.0:
+#                 raise ValidationError({"price": "Price must be greater than 0"})
+#         except ValueError:
+#             raise ValidationError({"price": "Invalid price format"})
+#         return super().create(request, *args, **kwargs)
 
 
-class ProductCreate(CreateAPIView):
-    serializer_class = ProductSerializer
-
-    def create(self, request, *args, **kwargs):
-        try:
-            price = request.data.get("price")
-            if price is not None and float(price) <= 0.0:
-                raise ValidationError({"price": "Price must be greater than 0"})
-        except ValueError:
-            raise ValidationError({"price": "Invalid price format"})
-        return super().create(request, *args, **kwargs)
-
-
+# @extend_schema_view(
+#     list=extend_schema(exclude=True),
+#     retrieve=extend_schema(exclude=True),
+#     create=extend_schema(exclude=True),
+#     update=extend_schema(exclude=True),
+#     partial_update=extend_schema(exclude=True),
+#     destroy=extend_schema(exclude=True),
+# )
 class ProductListCreateUpdateView(
-    GenericAPIView,
+    generics.GenericAPIView,
     ListModelMixin,
     CreateModelMixin,
     RetrieveModelMixin,
@@ -84,9 +97,10 @@ class ProductListCreateUpdateView(
     else:
         search_fields = ("name", "description")
     pagination_class = ProductsPagination
+    ordering_fields = ["name", "price"]
 
     def get(self, request, *args, **kwargs):
-        """Handle GET request (list)"""
+        """Handle GET request (list or retrieve)"""
         if "pk" in kwargs:  # Check if `pk` is in the URL
             return self.retrieve(request, *args, **kwargs)  # Retrieve a single object
         return self.list(request, *args, **kwargs)
@@ -124,27 +138,13 @@ class ProductListCreateUpdateView(
             raise ValidationError(e.message_dict)
 
     def delete(self, request, *args, **kwargs):
+        """Handle DELETE request (destroy)"""
         if "pk" not in kwargs:
             raise ValidationError({"pk": "Primary key (pk) is required."})
         return self.destroy(request, *args, **kwargs)
 
-    def get_operation_id(self):
-        print("get_operation_id")
-        """Override to provide unique operation IDs for different methods."""
-        if "pk" in self.kwargs:  # This checks if `pk` is present in the URL
-            # For detail view actions (retrieve, update, partial_update)
-            if self.request.method == "GET":
-                return "api_v1_products_detail"
-            elif self.request.method == "PUT":
-                return "api_v1_products_update"
-            elif self.request.method == "PATCH":
-                return "api_v1_products_partial_update"
-            elif self.request.method == "DELETE":
-                return "api_v1_products_destroy"
-        else:
-            # For list or create actions (POST without pk)
-            if self.request.method == "GET":
-                return "api_v1_products_list"
-            elif self.request.method == "POST":
-                return "api_v1_products_create"
-        return super().get_operation_id()
+    def options(self, request, *args, **kwargs):
+        """Handle DELETE request (destroy)"""
+        if "pk" not in kwargs:
+            self.kwargs["pk"] = None
+        return super().options(request, *args, **kwargs)

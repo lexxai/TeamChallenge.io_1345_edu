@@ -19,6 +19,6 @@ class ProductSerializer(serializers.ModelSerializer):
             "active",
         )
 
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        return data
+    # def to_representation(self, instance):
+    #     data = super().to_representation(instance)
+    #     return data

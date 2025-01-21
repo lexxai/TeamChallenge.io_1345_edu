@@ -61,17 +61,15 @@ urlpatterns = [
         SpectacularSwaggerView.as_view(url_name="schema"),
         name="swagger-root",
     ),
-    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path("schema/", SpectacularAPIView.as_view(), name="schema"),
     # Swagger UI
     path(
-        "api/docs/swagger/",
+        "docs/swagger/",
         SpectacularSwaggerView.as_view(url_name="schema"),
         name="swagger-ui",
     ),
     # ReDoc UI
-    path(
-        "api/docs/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"
-    ),
+    path("docs/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
     path("admin/", admin.site.urls),
     path("api/v1/cart/", include("cart.urls")),
     path("api/v1/products/", include("product.urls")),

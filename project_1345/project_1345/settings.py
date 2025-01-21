@@ -49,19 +49,22 @@ REDIS_DB = os.getenv("REDIS_DB", 0)  # Default to 0 if not set
 # Application definition
 
 INSTALLED_APPS = [
-    "rest_framework",
-    "drf_spectacular",
-    "django_filters",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # Third-party apps
+    "rest_framework",
+    "drf_spectacular",
+    "django_filters",
+    # Your own apps
     "cart",
     "category",
     "product",
 ]
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -203,7 +206,8 @@ else:
 # }
 
 REST_FRAMEWORK = {
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    # "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_SCHEMA_CLASS": "project_1345.schema.CustomAutoSchema",
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     # "DEFAULT_RENDERER_CLASSES": [
     #     "rest_framework.renderers.JSONRenderer",
@@ -215,8 +219,14 @@ SPECTACULAR_SETTINGS = {
     "TITLE": "PROJECT 1345 - API",
     "DESCRIPTION": "API documentation for project 1345.",
     "VERSION": "1.0.0",
-    "SERVE_INCLUDE_SCHEMA": False,  # Prevent serving schema directly
+    "SWAGGER_UI_SETTINGS": {
+        # "deepLinking": True,
+        # "persistAuthorization": True,
+        "displayOperationId": True,
+    },
+    # "PREPROCESSING_HOOKS": ["project_1345.schema.custom_preprocessing_hook"],
 }
+
 if DEBUG:
     LOGGING = {
         "version": 1,
