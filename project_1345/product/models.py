@@ -1,5 +1,8 @@
+from django.contrib.postgres.indexes import GinIndex
+from django.contrib.postgres.search import SearchVectorField, SearchVector
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.db import models, connection
+from django.db.models import Q
 
 from category.models import Category, CategorySchema
 
@@ -16,7 +19,35 @@ class Product(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     active = models.BooleanField(default=True)
 
+    class Meta:
+        ordering = ["-updated_at"]
+
+        indexes = [
+            models.Index(fields=["-updated_at"]),
+            models.Index(fields=["category"]),
+            models.Index(fields=["name"]),
+            models.Index(fields=["price"]),
+            models.Index(fields=["name", "price"]),
+            models.Index(fields=["category", "name", "price"]),
+            models.Index(Q(active=True), name="active_products_idx"),
+        ]
+        # Conditionally add the field based on the database backend
+        if connection.vendor == "postgresql":
+            search_vector = SearchVectorField(null=True, blank=True)
+
+        def __init_subclass__(cls, **kwargs):
+            super().__init_subclass__(**kwargs)
+
+            if connection.vendor == "postgresql":
+                cls._meta.indexes.append(
+                    GinIndex(fields=["property"])
+                )  # Add GIN index dynamically for PostgreSQL only
+
     def save(self, *args, **kwargs):
+        if connection.vendor == "postgresql":
+            self.search_vector = SearchVector("name", weight="A") + SearchVector(
+                "description", weight="B"
+            )
         # Get the CategorySchema for the category
         category_schema = CategorySchema.objects.filter(category=self.category).first()
 
