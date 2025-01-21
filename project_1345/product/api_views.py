@@ -10,6 +10,7 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 # from rest_framework.generics import ListAPIView, CreateAPIView
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
+from rest_framework.generics import GenericAPIView
 from rest_framework.mixins import (
     ListModelMixin,
     CreateModelMixin,
@@ -84,9 +85,6 @@ class ProductListCreateUpdateView(
     generics.GenericAPIView,
     ListModelMixin,
     CreateModelMixin,
-    RetrieveModelMixin,
-    UpdateModelMixin,
-    DestroyModelMixin,
 ):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
@@ -101,8 +99,6 @@ class ProductListCreateUpdateView(
 
     def get(self, request, *args, **kwargs):
         """Handle GET request (list or retrieve)"""
-        if "pk" in kwargs:  # Check if `pk` is in the URL
-            return self.retrieve(request, *args, **kwargs)  # Retrieve a single object
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
@@ -119,14 +115,36 @@ class ProductListCreateUpdateView(
             # Convert Django's ValidationError into DRF's ValidationError
             raise ValidationError(e.message_dict or e.message)
 
-    def put(self, request, *args, **kwargs):
-        """Handle PUT request (full update)"""
-        if "pk" not in kwargs:
+    # def options(self, request, *args, **kwargs):
+    #     """Handle DELETE request (destroy)"""
+    #     if "pk" not in kwargs:
+    #         self.kwargs["pk"] = None
+    #     return super().options(request, *args, **kwargs)
+
+
+class ProductListCreateUpdateViewDetail(
+    GenericAPIView,
+    RetrieveModelMixin,
+    UpdateModelMixin,
+    DestroyModelMixin,
+):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+    def get(self, request, *args, **kwargs):
+        """Handle GET request (list or retrieve)"""
+        if "pk" not in kwargs:  # Check if `pk` is in the URL
             raise ValidationError({"pk": "Primary key (pk) is required."})
-        try:
-            return self.update(request, *args, **kwargs)
-        except DjangoValidationError as e:
-            raise ValidationError(e.message_dict)
+        return self.retrieve(request, *args, **kwargs)  # Retrieve a single object
+
+    # def put(self, request, *args, **kwargs):
+    #     """Handle PUT request (full update)"""
+    #     if "pk" not in kwargs:
+    #         raise ValidationError({"pk": "Primary key (pk) is required."})
+    #     try:
+    #         return self.update(request, *args, **kwargs)
+    #     except DjangoValidationError as e:
+    #         raise ValidationError(e.message_dict)
 
     def patch(self, request, *args, **kwargs):
         """Handle PATCH request (partial update)"""
@@ -142,9 +160,3 @@ class ProductListCreateUpdateView(
         if "pk" not in kwargs:
             raise ValidationError({"pk": "Primary key (pk) is required."})
         return self.destroy(request, *args, **kwargs)
-
-    def options(self, request, *args, **kwargs):
-        """Handle DELETE request (destroy)"""
-        if "pk" not in kwargs:
-            self.kwargs["pk"] = None
-        return super().options(request, *args, **kwargs)
