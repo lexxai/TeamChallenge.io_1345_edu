@@ -15,8 +15,12 @@ class Cart(object):
             cart = self.session[settings.CART_SESSION_ID] = {}
         self.cart = cart
 
-    def add(self, product_id, quantity=1, price=0):
-        product_id = str(product_id)
+    def add(
+        self,
+        product_id: int,
+        quantity: int = 1,
+        price: float | str | Decimal | None = None,
+    ):
         try:
             # Check if the product exists in the Product model
             product = Product.objects.get(id=product_id)
@@ -24,12 +28,16 @@ class Cart(object):
             # If the product does not exist, raise an error or handle accordingly
             raise NotFound(detail=f"Product with ID {product_id} does not exist.")
 
+        if price is None or float(price) <= 0.0:
+            price = product.price or "0.00"
+
         if product_id not in self.cart:
             self.cart[product_id] = {
                 "quantity": 0,
-                "price": str(Decimal(price)),
             }  # store price as Decimal
         self.cart[product_id]["quantity"] += quantity
+        self.cart[product_id]["price"] = str(Decimal(price))
+
         self.save()
 
     def update(self, product_id: int, quantity: int = None, price: float = None):

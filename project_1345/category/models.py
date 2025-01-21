@@ -68,6 +68,7 @@ class CategorySchema(models.Model):
         return self.schema.get(property_name, {}).get("type", None)
 
 
+# schema field:
 # {
 #     "color": {
 #         "type": "str",
