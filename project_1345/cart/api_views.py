@@ -1,18 +1,42 @@
 from drf_spectacular.openapi import AutoSchema
-from rest_framework.exceptions import ValidationError
+from drf_spectacular.utils import extend_schema_serializer, OpenApiExample
+from rest_framework.exceptions import ValidationError, NotFound
 from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from drf_spectacular.utils import extend_schema, OpenApiParameter, extend_schema_view
+from drf_spectacular.utils import (
+    extend_schema,
+    OpenApiParameter,
+    extend_schema_view,
+    OpenApiResponse,
+)
 from drf_spectacular.types import OpenApiTypes
 
+from product.models import Product
 from .cart import Cart
-from .serializers import CartItemSerializer, CartContentSerializer
+from .serializers import CartItemSerializer, CartContentSerializer, CartUpdateSerializer
 
 
+@extend_schema_view(
+    get=extend_schema(
+        operation_id="cart_view_list",
+        description="Get list of items from the cart. "
+        "Or statistics info if query parameters are appended",
+    ),
+    post=extend_schema(),
+)
 class CartView(APIView):
+    # serializer_class = CartContentSerializer
     serializer_class = CartItemSerializer
+
+    def get_serializer_class(self):
+        """
+        Dynamically return the appropriate serializer class based on the request.
+        """
+        if self.request.method == "POST":
+            return CartItemSerializer
+        return CartContentSerializer
 
     @extend_schema(
         parameters=[
@@ -35,6 +59,15 @@ class CartView(APIView):
                 type=OpenApiTypes.BOOL,
             ),
         ],
+        responses={
+            200: CartContentSerializer(many=True),
+            206: {
+                "oneOf": [
+                    {"type": "integer"},  # For single values like quantity or items
+                    {"type": "string"},  # For total_price
+                ]
+            },
+        },
     )
     def get(self, request, *args, **kwargs):
 
@@ -55,15 +88,15 @@ class CartView(APIView):
         cart = Cart(request)
 
         if get_total_quantity:
-            return Response({"total_quantity": len(cart)})
+            return Response({"total_quantity": len(cart)}, status=206)
 
         cart_items = cart.get_cart_items()
 
         if get_total_items:
-            return Response({"cart_items": len(cart_items)})
+            return Response({"cart_items": len(cart_items)}, status=206)
 
         if get_total_price:
-            return Response({"total_price": cart.get_sub_total_price()})
+            return Response({"total_price": cart.get_sub_total_price()}, status=201)
 
         # Prepare the cart items data for serialization
         # cart_items_data = (
@@ -87,26 +120,148 @@ class CartView(APIView):
         serializer = CartContentSerializer(cart, many=True)
         return Response(serializer.data)
 
+    @extend_schema(
+        request=CartItemSerializer,
+        responses={
+            201: {
+                "description": "Item added to cart",
+                "content": {
+                    "application/json": {
+                        "examples": {
+                            "item_added": {"value": {"message": "Item added to cart"}}
+                        }
+                    }
+                },
+            },
+            404: {
+                "description": "Product ID not found",
+                "content": {
+                    "application/json": {
+                        "examples": {
+                            "product_not_found": {
+                                "value": {"product_id": "Product ID not found"}
+                            }
+                        }
+                    }
+                },
+            },
+            400: {
+                "description": "Product ID is required",
+                "content": {
+                    "application/json": {
+                        "examples": {
+                            "product_id_required": {
+                                "value": {"product_id": "Product ID is required"}
+                            }
+                        }
+                    }
+                },
+            },
+        },
+    )
     def post(self, request):
-        """Add an item to the cart"""
+        """ "Create an item in the cart. "
+        "Note: Price is optional. If not provided, the product's price will be used. "
+        "Last added price always overrides the previous price. "
+        "If the product is already in the cart, its quantity will be increased by quantity. "
+        "If the product does not exist, a 404 error will be returned."
+        """
+
         serializer = CartItemSerializer(data=request.data)
         if serializer.is_valid():
             cart = Cart(request)
-            cart.add(
-                product_id=serializer.validated_data["product_id"],
-                quantity=serializer.validated_data["quantity"],
-                price=serializer.validated_data.get("price", 0),
-            )
-            return Response(
-                {"message": "Item added to cart"}, status=status.HTTP_201_CREATED
-            )
+            try:
+                cart.add(
+                    product_id=serializer.validated_data["product_id"],
+                    quantity=serializer.validated_data["quantity"],
+                    price=serializer.validated_data.get("price", None),
+                )
+                return Response(
+                    {"message": "Item added to cart"}, status=status.HTTP_201_CREATED
+                )
+            except NotFound:
+                return Response(
+                    {"product_id": "Product ID not found"},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CartUpdateView(APIView):
+@extend_schema_view(
+    get=extend_schema(
+        operation_id="cart_update_view_retrieve",
+        responses={
+            200: CartContentSerializer(many=False),
+            400: OpenApiResponse(
+                description="error request",
+            ),
+            404: {
+                "description": '{"product_id": "Product ID not found"}',
+                "content": {
+                    "application/json": {
+                        "examples": {
+                            "item_updated": {
+                                "value": {"message": "Item updated in cart"}
+                            }
+                        }
+                    }
+                },
+            },
+        },
+    ),
+    patch=extend_schema(
+        request=CartUpdateSerializer,  # Serializer for request body
+        responses={
+            200: {
+                "description": "Item updated in cart",
+                "content": {
+                    "application/json": {
+                        "examples": {
+                            "item_updated": {
+                                "value": {"message": "Item updated in cart"}
+                            }
+                        }
+                    }
+                },
+            },
+            404: {
+                "description": "Product ID not found",
+                "content": {
+                    "application/json": {
+                        "examples": {
+                            "product_not_found": {
+                                "value": {"product_id": "Product ID not found"}
+                            }
+                        }
+                    }
+                },
+            },
+            400: {
+                "description": "Product ID is required",
+                "content": {
+                    "application/json": {
+                        "examples": {
+                            "product_id_required": {
+                                "value": {"product_id": "Product ID is required"}
+                            }
+                        }
+                    }
+                },
+            },
+        },
+    ),
+)
+class CartGetUpdateView(APIView):
+    """
+    Retrieve and update or delete an item in the cart
+    """
+
     serializer_class = CartItemSerializer
 
     def get(self, request, product_id: int = None, *args, **kwargs):
+        """
+        Retrieve an item from the cart.
+        """
         if product_id is None:
             raise ValidationError({"product_id": "Product ID is required"})
         cart = Cart(request)
@@ -126,7 +281,7 @@ class CartUpdateView(APIView):
             )
         request.data["product_id"] = product_id
         # Validate the request data using the serializer
-        serializer = CartItemSerializer(data=request.data)
+        serializer = CartUpdateSerializer(data=request.data)
         if serializer.is_valid():
             # Initialize the cart
             cart = Cart(request)

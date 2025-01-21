@@ -3,6 +3,15 @@ from rest_framework import serializers
 from .models import Category, CategorySchema
 
 
+# Define a custom serializer for the JSON schema
+class PropertySchemaSerializer(serializers.Serializer):
+    type = serializers.ChoiceField(
+        choices=["str", "int", "float", "bool"],
+        help_text="Type of the value (str, int, float, bool)",
+    )
+    required = serializers.BooleanField(help_text="Indicates if the field is required")
+
+
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
@@ -15,6 +24,11 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class CategorySchemaSerializer(serializers.ModelSerializer):
+    schema = serializers.DictField(
+        child=PropertySchemaSerializer(),
+        help_text="Schema: {property_name: {type: 'str|int|float|bool', required: bool}}",
+    )
+
     class Meta:
         model = CategorySchema
         fields = "__all__"
