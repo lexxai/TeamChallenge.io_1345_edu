@@ -108,11 +108,13 @@ class CartUpdateView(APIView):
 
     def get(self, request, product_id: int = None, *args, **kwargs):
         if product_id is None:
-            raise ValidationError({"product_id", "Product ID is required"})
+            raise ValidationError({"product_id": "Product ID is required"})
         cart = Cart(request)
         item = cart.get_item(product_id)
         if item is None:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"product_id": "Product ID not found"}, status=status.HTTP_404_NOT_FOUND
+            )
         return Response(item)
 
     def patch(self, request, product_id: int, *args, **kwargs):
