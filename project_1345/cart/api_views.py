@@ -11,7 +11,7 @@ from .cart import Cart
 from .serializers import CartItemSerializer, CartContentSerializer
 
 
-class CartView(GenericAPIView):
+class CartView(APIView):
     serializer_class = CartItemSerializer
 
     @extend_schema(
@@ -103,7 +103,7 @@ class CartView(GenericAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CartUpdateView(GenericAPIView):
+class CartUpdateView(APIView):
     serializer_class = CartItemSerializer
 
     def get(self, request, product_id: int = None, *args, **kwargs):
