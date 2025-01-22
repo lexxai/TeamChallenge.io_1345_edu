@@ -8,8 +8,8 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 
 
-from .serializers import ProductSerializer
-from .models import Product
+from .serializers import ProductSerializer, ProductImageSerializer
+from .models import Product, ProductImage
 
 
 class ProductsPagination(LimitOffsetPagination):
@@ -39,7 +39,7 @@ class ProductFilter(FilterSet):
 
 class ProductViewSet(ModelViewSet):
     # queryset = Product.objects.all()
-    queryset = Product.objects.prefetch_related("images")
+    queryset = Product.objects.prefetch_related("productimage_set")
     serializer_class = ProductSerializer
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
     filterset_class = ProductFilter
@@ -53,3 +53,16 @@ class ProductViewSet(ModelViewSet):
         if connection.vendor == "postgresql":
             return ("search_vector",)
         return self.search_fields
+
+
+class ProductImageViewSet(ModelViewSet):
+    serializer_class = ProductImageSerializer
+
+    def get_queryset(self):
+        # Filter images by product ID from the URL
+        return ProductImage.objects.filter(product_id=self.kwargs["product_pk"])
+
+    def perform_create(self, serializer):
+        # Automatically assign the product from the URL
+        product = Product.objects.get(pk=self.kwargs["product_pk"])
+        serializer.save(product=product)

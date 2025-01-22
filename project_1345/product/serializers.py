@@ -4,7 +4,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from category.models import CategorySchema
-from .models import Product
+from .models import Product, ProductImage
 
 
 @extend_schema_field({"type": "string", "format": "decimal", "example": "10.00"})
@@ -147,3 +147,9 @@ class ProductSerializer(serializers.ModelSerializer):
             # Catch the FieldError raised by the model and re-raise it
             raise ValidationError(str(e))
         return self.instance
+
+
+class ProductImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImage
+        fields = ["id", "image", "product"]
