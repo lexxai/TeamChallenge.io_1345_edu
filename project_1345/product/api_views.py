@@ -192,4 +192,3 @@ class ProductViewSet(ModelViewSet):
         if connection.vendor == "postgresql":
             return ("search_vector",)
         return ("name", "description")
-

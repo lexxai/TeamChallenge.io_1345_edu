@@ -133,9 +133,8 @@ class ProductSerializer(serializers.ModelSerializer):
     def save(self, **kwargs):
         # Perform any pre-save validation here
         instance = self.instance  # Get the model instance
-
         # Perform model-level validation (custom checks)
-        if not instance.name:
+        if instance and not instance.name:
             raise ValidationError("Product name is required.")
         try:
             # Call the model's save method
