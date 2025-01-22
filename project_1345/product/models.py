@@ -110,7 +110,7 @@ class Product(models.Model):
         return '<Product object ({}) "{}">'.format(self.id, self.name)
 
     def __str__(self):
-        return self.name
+        return f"[{self.id}] {self.name}"
 
 
 def generate_upload_to(instance, filename):
