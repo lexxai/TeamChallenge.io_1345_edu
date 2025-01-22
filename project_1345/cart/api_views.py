@@ -166,25 +166,23 @@ class CartView(APIView):
         "If the product is already in the cart, its quantity will be increased by quantity. "
         "If the product does not exist, a 404 error will be returned."
         """
-
         serializer = CartItemSerializer(data=request.data)
-        if serializer.is_valid():
-            cart = Cart(request)
-            try:
-                cart.add(
-                    product_id=serializer.validated_data["product_id"],
-                    quantity=serializer.validated_data["quantity"],
-                    price=serializer.validated_data.get("price", None),
-                )
-                return Response(
-                    {"message": "Item added to cart"}, status=status.HTTP_201_CREATED
-                )
-            except NotFound:
-                return Response(
-                    {"product_id": "Product ID not found"},
-                    status=status.HTTP_404_NOT_FOUND,
-                )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        cart = Cart(request)
+        try:
+            cart.add(
+                product_id=serializer.validated_data["product_id"],
+                quantity=serializer.validated_data["quantity"],
+                price=serializer.validated_data.get("price", None),
+            )
+            return Response(
+                {"message": "Item added to cart"}, status=status.HTTP_201_CREATED
+            )
+        except NotFound:
+            return Response(
+                {"product_id": "Product ID not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
 
 @extend_schema_view(

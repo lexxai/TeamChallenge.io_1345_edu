@@ -1,16 +1,23 @@
 # TeamChallenge.io_1345_edu
 Team Challenge project #1345. Test and education with git. Any action from co-owners.
 
-## First run:
+## Swager docs ...
+URL: / or /docs/swagger/
 
-<img width="1084" alt="Знімок екрана 2025-01-14 о 21 34 43" src="https://github.com/user-attachments/assets/9bc20423-b21a-4a7a-9716-aaa72fe46481" />
+![Screenshot 2025-01-22 at 21-52-29 PROJECT 1345 - API](https://github.com/user-attachments/assets/68842976-ab6e-4cac-97a7-bc8802135adb)
 
-## Added Swager Init page ...
+## ReDoc
+### Product List 
+URL: /docs/redoc/
 
-<img width="1209" alt="Знімок екрана 2025-01-14 о 22 11 47" src="https://github.com/user-attachments/assets/94de68fa-05cf-41c1-90d3-9d00ae8dfd83" />
+![Знімок екрана 2025-01-22 о 22 03 41](https://github.com/user-attachments/assets/27327cec-d9aa-4506-8fab-c101ea03fadf)
 
-API /api/v1/cart GET example:
-![Знімок екрана 2025-01-17 о 04 02 03](https://github.com/user-attachments/assets/b283d3a4-8474-4911-92cf-e91101c5b79e)
+
+## Django REST framework GUI for API
+### Product List/Create 
+URL: /api/v1/products/
+
+![Screenshot 2025-01-22 at 21-57-19 Product List – Django REST framework](https://github.com/user-attachments/assets/1dd5d371-db28-4e9a-a885-c7cf4299847a)
 
 
 ## API
@@ -51,7 +58,8 @@ Can delete one product:
 ```
 Or without any data can delete all item's cart
 
-#### Example of GET
 
-![Знімок екрана 2025-01-17 о 03 44 43](https://github.com/user-attachments/assets/00625509-803a-487e-aed3-8bf183ed5143)
+### Deployed education version
+
+https://teamchallenge-io-1345-edu.onrender.com
 
