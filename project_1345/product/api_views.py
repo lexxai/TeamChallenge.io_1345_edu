@@ -193,26 +193,3 @@ class ProductViewSet(ModelViewSet):
             return ("search_vector",)
         return ("name", "description")
 
-    def update1(self, request, *args, **kwargs):
-        partial = kwargs.pop("partial", False)
-        instance = self.get_object()
-        try:
-            serializer = self.get_serializer(
-                instance, data=request.data, partial=partial
-            )
-            serializer.is_valid(raise_exception=True)
-            self.perform_update(serializer)
-        except ValidationError as e:
-            return Response({"detail": e.detail}, status=status.HTTP_400_BAD_REQUEST)
-        except ValueError as e:
-            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        return Response(serializer.data)
-
-    def update(self, request, *args, **kwargs):
-        try:
-            # Call the superclass method for update logic
-            response = super().update(request, *args, **kwargs)
-            return response  # Ensure you return the response
-        except FieldError as e:
-            # Handle unexpected ValueError
-            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)

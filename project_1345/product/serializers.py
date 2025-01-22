@@ -130,7 +130,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
         return data
 
-    def save1(self, **kwargs):
+    def save(self, **kwargs):
         # Perform any pre-save validation here
         instance = self.instance  # Get the model instance
 
@@ -140,7 +140,7 @@ class ProductSerializer(serializers.ModelSerializer):
         try:
             # Call the model's save method
             super().save(**kwargs)
-        except ValidationError as e:
-            # Catch the ValidationError raised by the model and re-raise it
+        except FieldError as e:
+            # Catch the FieldError raised by the model and re-raise it
             raise ValidationError(str(e))
         return self.instance
