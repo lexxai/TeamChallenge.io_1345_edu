@@ -107,3 +107,20 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class ProductImage(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to="product_images/")
+
+    def __str__(self):
+        return self.product.name
+
+    def __repr__(self):
+        return '<ProductImage object ({}) "{}">'.format(self.id, self.product.name)
+
+    class Meta:
+        unique_together = ("product", "image")
+        indexes = [
+            models.Index(fields=["product"]),
+        ]
