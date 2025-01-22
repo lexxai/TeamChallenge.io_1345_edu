@@ -80,7 +80,7 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = "__all__"
 
-    def validate1(self, data):
+    def validate(self, data):
         # Perform schema validation
         category = data.get("category")
         property_data = data.get("property")
@@ -97,6 +97,10 @@ class ProductSerializer(serializers.ModelSerializer):
         if property_data:
             for key, value in property_data.items():
                 expected_type = category_schema.get_property_type(key)
+                if not expected_type:
+                    raise ValidationError(
+                        {key: f"Property '{key}' is not defined in the schema."}
+                    )
                 if expected_type == "str" and not isinstance(value, str):
                     raise ValidationError(
                         {key: f"Property '{key}' must be of type 'str'."}
