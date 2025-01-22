@@ -2,6 +2,7 @@ import json
 
 from django.db import connection
 from django_filters import FilterSet, CharFilter
+from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.filters import SearchFilter, OrderingFilter
@@ -55,7 +56,83 @@ class ProductViewSet(ModelViewSet):
         return self.search_fields
 
 
+@extend_schema_view(
+    list=extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "product_pk",
+                type=int,
+                location="path",
+                description="ID of the product",
+                required=True,
+            ),
+            OpenApiParameter(
+                "id",
+                type=int,
+                location="path",
+                description="ID of the image",
+                required=False,
+            ),
+        ]
+    ),
+    retrieve=extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "product_pk",
+                type=int,
+                location="path",
+                description="ID of the product",
+                required=True,
+            ),
+            OpenApiParameter(
+                "id",
+                type=int,
+                location="path",
+                description="ID of the image",
+                required=True,  # id is required for retrieve
+            ),
+        ]
+    ),
+    # create=extend_schema(
+    #     parameters=[
+    #         OpenApiParameter(
+    #             "product_pk", type=int, description="ID of the product", required=True
+    #         )
+    #     ]
+    # ),
+    # retrieve=extend_schema(
+    #     parameters=[
+    #         OpenApiParameter(
+    #             "product_pk", type=int, description="ID of the product", required=True
+    #         ),
+    #         OpenApiParameter(
+    #             "id", type=int, description="ID of the image", required=False
+    #         ),
+    #     ]
+    # ),
+    # update=extend_schema(
+    #     parameters=[
+    #         OpenApiParameter(
+    #             "product_pk", type=int, description="ID of the product", required=True
+    #         ),
+    #         OpenApiParameter(
+    #             "id", type=int, description="ID of the image", required=False
+    #         ),
+    #     ]
+    # ),
+    # destroy=extend_schema(
+    #     parameters=[
+    #         OpenApiParameter(
+    #             "id", type=int, description="ID of the image", required=True
+    #         )
+    #     ]
+    # ),
+)
 class ProductImageViewSet(ModelViewSet):
+    """
+    Operate with the images of product by product_pk
+    """
+
     serializer_class = ProductImageSerializer
 
     def get_queryset(self):

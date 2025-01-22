@@ -69,7 +69,16 @@ class ProductSerializer0(serializers.ModelSerializer):
     #     return data["id"]
 
 
+class ProductImageSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField()
+
+    class Meta:
+        model = ProductImage
+        fields = ["id", "image", "product"]
+
+
 class ProductSerializer(serializers.ModelSerializer):
+    images = ProductImageSerializer(many=True, required=False)
     property = serializers.DictField(
         child=AnnotatedMultiTypeField(),
         help_text="Key-value pairs where key is string and values can be 'str', 'int', 'float', or 'bool'. Example: {'color': 'red', 'size': 34}",
@@ -91,7 +100,9 @@ class ProductSerializer(serializers.ModelSerializer):
         # Get the schema for the given category
         category_schema = CategorySchema.objects.filter(category=category).first()
         if not category_schema:
-            raise ValidationError({"category": "Invalid category schema."})
+            # raise ValidationError({"category": "Invalid category schema."})
+            # No scheme, no checks...
+            return data
 
         # Check property data against the schema
         if property_data:
@@ -148,8 +159,25 @@ class ProductSerializer(serializers.ModelSerializer):
             raise ValidationError(str(e))
         return self.instance
 
+    def create(self, validated_data):
+        images_data = validated_data.pop("images", [])
+        if not isinstance(images_data, list):
+            images_data = [images_data]
+        product = Product.objects.create(**validated_data)
+        for image_data in images_data:
+            ProductImage.objects.create(product=product, **image_data)
+        return product
 
-class ProductImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProductImage
-        fields = ["id", "image", "product"]
+    def update(self, instance, validated_data):
+        images_data = validated_data.pop("images", [])
+        instance.name = validated_data.get("name", instance.name)
+        instance.description = validated_data.get("description", instance.description)
+        instance.price = validated_data.get("price", instance.price)
+        instance.save()
+
+        # Optionally clear existing images if desired
+        # instance.images.all().delete()
+
+        for image_data in images_data:
+            ProductImage.objects.create(product=instance, **image_data)
+        return instance
