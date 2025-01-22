@@ -1,7 +1,7 @@
 # from django_json_widget.widgets import JSONEditorWidget
 from django import forms
 from django.contrib import admin
-from .models import Product
+from .models import Product, ProductImage
 
 
 # class ProductAdminForm(forms.ModelForm):
@@ -34,3 +34,12 @@ class ProductAdmin(admin.ModelAdmin):
     )  # Add filters for quick filtering
     ordering = ("-created_at",)  # Default ordering in the admin
     readonly_fields = ("id", "created_at", "updated_at")  # Make timestamps read-only
+
+
+@admin.register(ProductImage)
+class ProductImageAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "image",
+        "product",
+    )
