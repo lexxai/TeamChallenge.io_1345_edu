@@ -2,11 +2,10 @@ import json
 
 from django.db import connection
 from django_filters import FilterSet, CharFilter
-from rest_framework import status
 
 # from drf_spectacular.types import OpenApiTypes
 from rest_framework.exceptions import ValidationError
-from django.core.exceptions import ValidationError as DjangoValidationError, FieldError
+from django.core.exceptions import ValidationError as DjangoValidationError
 
 # from rest_framework.generics import ListAPIView, CreateAPIView
 from django_filters.rest_framework import DjangoFilterBackend
@@ -20,8 +19,6 @@ from rest_framework.mixins import (
     DestroyModelMixin,
 )
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.response import Response
-from rest_framework.viewsets import ViewSet
 
 # from drf_spectacular.utils import extend_schema, extend_schema_view
 # from drf_spectacular.utils import OpenApiParameter
@@ -165,54 +162,3 @@ class ProductGetUpdateDeleteViewDetail(
         if "pk" not in kwargs:
             raise ValidationError({"pk": "Primary key (pk) is required."})
         return self.destroy(request, *args, **kwargs)
-
-
-from rest_framework.viewsets import ModelViewSet
-from django.db import connection
-from rest_framework.filters import SearchFilter, OrderingFilter
-from django_filters.rest_framework import DjangoFilterBackend
-from .models import Product
-from .serializers import ProductSerializer
-
-# from .pagination import ProductsPagination
-# from .filters import ProductFilter
-
-
-class ProductViewSet(ModelViewSet):
-    queryset = Product.objects.all()
-    serializer_class = ProductSerializer
-    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
-    filterset_class = ProductFilter
-    pagination_class = ProductsPagination
-    ordering_fields = ["name", "price", "-updated_at"]
-    ordering = ["-updated_at"]  # Default ordering
-
-    def get_search_fields(self, request):
-        """Dynamically determine search fields based on the database backend."""
-        if connection.vendor == "postgresql":
-            return ("search_vector",)
-        return ("name", "description")
-
-    def update1(self, request, *args, **kwargs):
-        partial = kwargs.pop("partial", False)
-        instance = self.get_object()
-        try:
-            serializer = self.get_serializer(
-                instance, data=request.data, partial=partial
-            )
-            serializer.is_valid(raise_exception=True)
-            self.perform_update(serializer)
-        except ValidationError as e:
-            return Response({"detail": e.detail}, status=status.HTTP_400_BAD_REQUEST)
-        except ValueError as e:
-            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        return Response(serializer.data)
-
-    def update(self, request, *args, **kwargs):
-        try:
-            # Call the superclass method for update logic
-            response = super().update(request, *args, **kwargs)
-            return response  # Ensure you return the response
-        except FieldError as e:
-            # Handle unexpected ValueError
-            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)

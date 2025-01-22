@@ -1,6 +1,6 @@
 from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchVectorField, SearchVector
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, FieldError
 from django.db import models, connection
 from django.db.models import Q
 
@@ -56,30 +56,30 @@ class Product(models.Model):
             if self.property:
                 property_items = self.property.items()
                 if not property_items:
-                    raise ValidationError("No properties provided.")
+                    raise FieldError({"property": "No properties provided."})
                 for key, value in property_items:
                     expected_type = category_schema.get_property_type(key)
                     if expected_type:
                         # Check if the value type matches the expected type
                         if expected_type == "str" and not isinstance(value, str):
-                            raise ValidationError(
-                                f"Property '{key}' must be of type 'str'."
+                            raise FieldError(
+                                {key: f"Property '{key}' must be of type 'str'."}
                             )
                         elif expected_type == "int" and not isinstance(value, int):
-                            raise ValidationError(
-                                f"Property '{key}' must be of type 'int'."
+                            raise FieldError(
+                                {key: f"Property '{key}' must be of type 'int'."}
                             )
                         elif expected_type == "float" and not isinstance(value, float):
-                            raise ValidationError(
-                                f"Property '{key}' must be of type 'float'."
+                            raise FieldError(
+                                {key: f"Property '{key}' must be of type 'float'."}
                             )
                         elif expected_type == "bool" and not isinstance(value, bool):
-                            raise ValidationError(
-                                f"Property '{key}' must be of type 'bool'."
+                            raise FieldError(
+                                {key: f"Property '{key}' must be of type 'bool'."}
                             )
                     else:
-                        raise ValidationError(
-                            f"Property '{key}' is not defined in the schema."
+                        raise FieldError(
+                            {key: f"Property '{key}' is not defined in the schema."}
                         )
 
             # Check for required properties (if your schema defines required properties)
@@ -92,7 +92,7 @@ class Product(models.Model):
                 if (req_property and not self.property) or (
                     req_property not in self.property
                 ):
-                    raise ValidationError(
+                    raise FieldError(
                         {
                             req_property: f"Property '{req_property}' is required but not provided."
                         }
