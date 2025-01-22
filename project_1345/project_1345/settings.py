@@ -248,4 +248,5 @@ if DEBUG:
     }
 
 MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_URL = "/media/"
 PRODUCT_IMAGE_FOLDER = "product_images"
