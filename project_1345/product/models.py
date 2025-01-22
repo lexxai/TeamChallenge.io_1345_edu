@@ -1,3 +1,7 @@
+import uuid
+from pathlib import Path
+
+from django.conf import settings
 from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchVectorField, SearchVector
 from django.core.exceptions import ValidationError, FieldError
@@ -109,9 +113,15 @@ class Product(models.Model):
         return self.name
 
 
+def generate_upload_to(instance, filename):
+    # Generate a unique UUID for the file name
+    filename = Path(filename)
+    return f"{settings.PRODUCT_IMAGE_FOLDER}/{uuid.uuid4()}{filename.suffix}"
+
+
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    image = models.ImageField(upload_to="product_images/")
+    image = models.ImageField(upload_to=generate_upload_to)
 
     def __str__(self):
         return self.product.name
