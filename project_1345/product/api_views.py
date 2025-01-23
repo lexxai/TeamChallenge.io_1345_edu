@@ -1,12 +1,14 @@
 import json
 
 from django.db import connection
+from django.db.models import Count
 from django_filters import FilterSet, CharFilter
 from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
+from django_filters import rest_framework as filters
 
 
 from .serializers import (
@@ -24,6 +26,7 @@ class ProductsPagination(LimitOffsetPagination):
 
 class ProductFilter(FilterSet):
     property = CharFilter(method="filter_property")
+    images = filters.BooleanFilter(method="filter_has_image")
 
     class Meta:
         model = Product
@@ -40,6 +43,20 @@ class ProductFilter(FilterSet):
             return queryset
         except (ValueError, TypeError, json.JSONDecodeError):
             return queryset.none()
+
+    def filter_has_image(self, queryset, name, value):
+        """
+        Custom filter to check if a product has at least one associated image.
+        If `value=True`, filter to only products with images.
+        If `value=False`, filter to only products without images.
+        """
+        if value:  # Filter products that have at least one image
+            return queryset.annotate(image_count=Count("images")).filter(
+                image_count__gt=0
+            )
+        elif value is False:  # Filter products that have no images
+            return queryset.annotate(image_count=Count("images")).filter(image_count=0)
+        return queryset  # Return the queryset unfiltered if no value is passed
 
 
 class ProductViewSet(ModelViewSet):
