@@ -20,6 +20,10 @@ URL: /api/v1/products/
 
 ![Screenshot 2025-01-22 at 21-57-19 Product List – Django REST framework](https://github.com/user-attachments/assets/1dd5d371-db28-4e9a-a885-c7cf4299847a)
 
+## Django Admin
+Uploaded image:
+![Знімок екрана 2025-01-23 о 05 10 44](https://github.com/user-attachments/assets/57e0b75e-e87b-4405-a008-384f33f78ec9)
+
 
 ## API
 
