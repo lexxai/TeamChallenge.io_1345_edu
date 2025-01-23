@@ -9,7 +9,7 @@ name: DEPLOY
 on:
   pull_request:
   push:
-    branches: [ dev-lexxai, dev-lexxai-product ]
+    branches: [ dev-lexxai ]
 
 jobs:
   ci:
