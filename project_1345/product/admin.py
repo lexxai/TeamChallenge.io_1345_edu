@@ -17,6 +17,13 @@ from .serializers import ProductSerializer
 #         }
 
 
+class ProductImageInline(admin.TabularInline):
+    model = ProductImage
+    extra = 0  # Number of empty forms displayed (1 in this case)
+    fields = ("image", "id")  # Fields to show for each image
+    # readonly_fields = ("image",)  # Make the image field read-only if needed
+
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = (
@@ -38,6 +45,7 @@ class ProductAdmin(admin.ModelAdmin):
     )  # Add filters for quick filtering
     ordering = ("-created_at",)  # Default ordering in the admin
     readonly_fields = ("id", "created_at", "updated_at")  # Make timestamps read-only
+    inlines = [ProductImageInline]
 
     def save_model1(self, request, obj, form, change):
         try:

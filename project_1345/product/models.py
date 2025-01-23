@@ -131,7 +131,10 @@ class Product(models.Model):
 def generate_upload_to(instance, filename):
     # Generate a unique UUID for the file name
     filename = Path(filename)
-    return f"{settings.PRODUCT_IMAGE_FOLDER}/{uuid.uuid4()}{filename.suffix}"
+    new_filename = str(uuid.uuid4())
+    level1_folder = new_filename[:2]
+    level2_folder = new_filename[2:4]
+    return f"{settings.PRODUCT_IMAGE_FOLDER}/{level1_folder}/{level2_folder}/{new_filename}{filename.suffix}"
 
 
 class ProductImage(models.Model):
