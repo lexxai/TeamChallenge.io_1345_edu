@@ -3,6 +3,7 @@ from django import forms
 from django.contrib import admin, messages
 from django.core.exceptions import FieldError, ValidationError
 from django.forms import model_to_dict
+from django.utils.translation import gettext_lazy as _
 
 from .models import Product, ProductImage
 from .serializers import ProductSerializer
@@ -20,8 +21,32 @@ from .serializers import ProductSerializer
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
     extra = 0  # Number of empty forms displayed (1 in this case)
-    fields = ("image", "id")  # Fields to show for each image
+    fields = ("title", "image", "id")  # Fields to show for each image
     # readonly_fields = ("image",)  # Make the image field read-only if needed
+
+
+class HasImagesFilter(admin.SimpleListFilter):
+    title = _("has images")  # Displayed title in the filter dropdown
+    parameter_name = "has_images"  # Query parameter used in the URL
+
+    def lookups(self, request, model_admin):
+        """
+        Define the options for the filter (displayed in the dropdown).
+        """
+        return (
+            ("yes", _("Yes")),
+            ("no", _("No")),
+        )
+
+    def queryset(self, request, queryset):
+        """
+        Filter the queryset based on the selected value.
+        """
+        if self.value() == "yes":
+            return queryset.filter(images__isnull=False).distinct()
+        if self.value() == "no":
+            return queryset.filter(images__isnull=True).distinct()
+        return queryset
 
 
 @admin.register(Product)
@@ -42,6 +67,8 @@ class ProductAdmin(admin.ModelAdmin):
         "active",
         "category",
         "created_at",
+        "updated_at",
+        HasImagesFilter,
     )  # Add filters for quick filtering
     ordering = ("-created_at",)  # Default ordering in the admin
     readonly_fields = ("id", "created_at", "updated_at")  # Make timestamps read-only
@@ -93,6 +120,11 @@ class ProductAdmin(admin.ModelAdmin):
 class ProductImageAdmin(admin.ModelAdmin):
     list_display = (
         "id",
+        "title",
         "image",
         "product",
+    )
+    readonly_fields = (
+        "width",
+        "height",
     )
