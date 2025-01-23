@@ -4,7 +4,8 @@ Team Challenge project #1345. Test and education with git. Any action from co-ow
 ## Swager docs ...
 URL: / or /docs/swagger/
 
-![Screenshot 2025-01-22 at 21-52-29 PROJECT 1345 - API](https://github.com/user-attachments/assets/68842976-ab6e-4cac-97a7-bc8802135adb)
+![Screenshot 2025-01-23 at 04-33-57 PROJECT 1345 - API](https://github.com/user-attachments/assets/915c6341-5da3-44a8-afd5-4f1e3ffe1a73)
+
 
 ## ReDoc
 ### Product List 
