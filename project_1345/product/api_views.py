@@ -90,42 +90,6 @@ class ProductViewSet(ModelViewSet):
             ),
         ]
     ),
-    # create=extend_schema(
-    #     # request={"multipart/form-data": ProductImageShortSerializer},
-    #     # responses=ProductImageShortSerializer,
-    #     # parameters=[
-    #     #     OpenApiParameter(
-    #     #         "product_pk", type=int, description="ID of the product", required=True
-    #     #     )
-    #     # ]
-    # ),
-    # retrieve=extend_schema(
-    #     parameters=[
-    #         OpenApiParameter(
-    #             "product_pk", type=int, description="ID of the product", required=True
-    #         ),
-    #         OpenApiParameter(
-    #             "id", type=int, description="ID of the image", required=False
-    #         ),
-    #     ]
-    # ),
-    # update=extend_schema(
-    #     parameters=[
-    #         OpenApiParameter(
-    #             "product_pk", type=int, description="ID of the product", required=True
-    #         ),
-    #         OpenApiParameter(
-    #             "id", type=int, description="ID of the image", required=False
-    #         ),
-    #     ]
-    # ),
-    # destroy=extend_schema(
-    #     parameters=[
-    #         OpenApiParameter(
-    #             "id", type=int, description="ID of the image", required=True
-    #         )
-    #     ]
-    # ),
 )
 class ProductImageViewSet(ModelViewSet):
     """
