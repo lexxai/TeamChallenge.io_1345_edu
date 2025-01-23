@@ -93,6 +93,7 @@ class ProductFilter(FilterSet):
         return queryset  # Return the queryset unfiltered if no value is passed
 
 
+@extend_schema(tags=["Products API"])
 class ProductViewSet(ModelViewSet):
     # queryset = Product.objects.all()
     authentication_classes = [
@@ -150,6 +151,7 @@ class ProductViewSet(ModelViewSet):
         ]
     ),
 )
+@extend_schema(tags=["Product's images API"])
 class ProductImageViewSet(ModelViewSet):
     """
     Operate with the images of product by product_pk
