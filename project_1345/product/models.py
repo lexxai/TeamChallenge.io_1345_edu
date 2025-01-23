@@ -13,15 +13,30 @@ from category.models import Category, CategorySchema
 
 # Create your models here.
 class Product(models.Model):
-    name = models.CharField(max_length=255)
-    description = models.TextField(null=True, blank=True)
-    owner = models.CharField(max_length=255, null=True, blank=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    property = models.JSONField(null=True, blank=True, default=dict)
-    created_at = models.DateField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    active = models.BooleanField(default=True)
+    name = models.CharField(max_length=255, help_text="Name of the product")
+    description = models.TextField(
+        null=True, blank=True, help_text="Description of the product"
+    )
+    owner = models.CharField(
+        max_length=255, null=True, blank=True, help_text="Owner of the product"
+    )
+    price = models.DecimalField(
+        max_digits=10, decimal_places=2, help_text="Price of the product, format: 0.00"
+    )
+    category = models.ForeignKey(
+        Category, on_delete=models.CASCADE, help_text="Category of the product"
+    )
+    property = models.JSONField(
+        null=True,
+        blank=True,
+        default=dict,
+        help_text="Property of the product. Example: {'color': 'red', 'size': 34}",
+    )
+    created_at = models.DateField(auto_now_add=True, help_text="Creation date")
+    updated_at = models.DateTimeField(
+        auto_now=True, help_text="Last updated date and time"
+    )
+    active = models.BooleanField(default=True, help_text="Is the product active?")
 
     class Meta:
         ordering = ["-updated_at"]
