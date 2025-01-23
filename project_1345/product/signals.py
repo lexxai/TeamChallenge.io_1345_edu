@@ -8,28 +8,29 @@ from django.dispatch import receiver
 from product.models import ProductImage
 
 
-@receiver(pre_save, sender=ProductImage)
-def cache_old_image(sender, instance, **kwargs):
-    if instance.pk:
-        try:
-            instance._old_image = sender.objects.get(pk=instance.pk).image
-        except sender.DoesNotExist:
-            instance._old_image = None
+# @receiver(pre_save, sender=ProductImage)
+# def cache_old_image(sender, instance, **kwargs):
+#     if instance.pk:
+#         try:
+#             instance._old_image = sender.objects.get(pk=instance.pk).image
+#         except sender.DoesNotExist:
+#             instance._old_image = None
 
 
-@receiver(post_save, sender=ProductImage)
-def update_image_file(sender, instance, created, **kwargs):
-    if not created:
-        old_image = getattr(instance, "_old_image", None)
-        new_image = instance.image
-        # print(old_image, new_image)
-        if old_image and old_image != new_image:
-            try:
-                old_image_path = Path(old_image.path)
-                if old_image_path.exists():
-                    old_image_path.unlink()  # Delete the old file
-            except ValueError:
-                ...  # Handle invalid paths
+# @receiver(post_save, sender=ProductImage)
+# def update_image_file(sender, instance, created, **kwargs):
+#     if not created:
+#         old_image = getattr(instance, "_old_image", None)
+#         new_image = instance.image
+#         # print(old_image, new_image)
+#         if old_image and old_image != new_image:
+#             try:
+#                 old_image_path = Path(old_image.path)
+#                 if old_image_path.exists():
+#                     old_image_path.unlink()  # Delete the old file
+#             except ValueError:
+#                 ...  # Handle invalid paths
+#
 
 
 @receiver(post_delete, sender=ProductImage)

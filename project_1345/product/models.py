@@ -143,6 +143,27 @@ class ProductImage(models.Model):
     )
     image = models.ImageField(upload_to=generate_upload_to)
 
+    def pre_save(self, *args, **kwargs):
+        if self.pk:  # Only fetch old data for existing objects
+            old_self = ProductImage.objects.filter(pk=self.pk).first()
+            self.old_image = old_self.image if old_self else None
+        else:
+            self.old_image = None
+
+    def post_save(self, *args, **kwargs):
+        if self.old_image and (not self.image or self.old_image != self.image):
+            try:
+                old_image_path = Path(self.old_image.path)
+                if old_image_path.exists():
+                    old_image_path.unlink()  # Delete the old file
+            except ValueError:
+                ...  # Handle invalid paths
+
+    def save(self, *args, **kwargs):
+        self.pre_save()
+        super().save(*args, **kwargs)
+        self.post_save()
+
     def __str__(self):
         return self.product.name
 
