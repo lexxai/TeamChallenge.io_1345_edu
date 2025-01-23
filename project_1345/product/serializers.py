@@ -1,10 +1,13 @@
+from pathlib import Path
+
 from django.core.exceptions import FieldError
+from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from category.models import CategorySchema
-from .models import Product
+from .models import Product, ProductImage
 
 
 @extend_schema_field({"type": "string", "format": "decimal", "example": "10.00"})
@@ -69,12 +72,51 @@ class ProductSerializer0(serializers.ModelSerializer):
     #     return data["id"]
 
 
+class ProductImageSerializer(serializers.ModelSerializer):
+    # image = serializers.ImageField()
+
+    class Meta:
+        model = ProductImage
+        fields = ["id", "image", "product"]
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        return {"id": data["id"], "image": data["image"]}
+
+    def update(self, instance, validated_data):
+        # Check if image is being updated
+        if "image" in validated_data:
+            old_image = instance.image
+            if old_image:
+                old_image_path = Path(old_image.path)
+                if old_image_path.exists():
+                    old_image_path.unlink()  # Delete the old image
+        return super().update(instance, validated_data)
+
+
+class ProductImageShortSerializer(ProductImageSerializer):
+    class Meta:
+        model = ProductImage
+        fields = (
+            "id",
+            "image",
+        )
+
+
 class ProductSerializer(serializers.ModelSerializer):
+    images = ProductImageShortSerializer(
+        many=True,
+        required=False,
+        help_text="Product images list, uploaded in base64 format. Can be added later.",
+    )
     property = serializers.DictField(
         child=AnnotatedMultiTypeField(),
-        help_text="Key-value pairs where key is string and values can be 'str', 'int', 'float', or 'bool'. Example: {'color': 'red', 'size': 34}",
+        help_text="Key-value pairs where key is string and values can be 'str', 'int', 'float', or 'bool'. "
+        "Example: {'color': 'red', 'size': 34}. Depends on category schema.",
     )
-    price = CustomDecimalField(max_digits=10, decimal_places=2)
+    price = CustomDecimalField(
+        max_digits=10, decimal_places=2, help_text="Price of the product, format: 0.00"
+    )
 
     class Meta:
         model = Product
@@ -91,7 +133,9 @@ class ProductSerializer(serializers.ModelSerializer):
         # Get the schema for the given category
         category_schema = CategorySchema.objects.filter(category=category).first()
         if not category_schema:
-            raise ValidationError({"category": "Invalid category schema."})
+            # raise ValidationError({"category": "Invalid category schema."})
+            # No scheme, no checks...
+            return data
 
         # Check property data against the schema
         if property_data:
@@ -147,3 +191,26 @@ class ProductSerializer(serializers.ModelSerializer):
             # Catch the FieldError raised by the model and re-raise it
             raise ValidationError(str(e))
         return self.instance
+
+    def create(self, validated_data):
+        images_data = validated_data.pop("images", [])
+        if not isinstance(images_data, list):
+            images_data = [images_data]
+        product = Product.objects.create(**validated_data)
+        for image_data in images_data:
+            ProductImage.objects.create(product=product, **image_data)
+        return product
+
+    def update(self, instance, validated_data):
+        images_data = validated_data.pop("images", [])
+        instance.name = validated_data.get("name", instance.name)
+        instance.description = validated_data.get("description", instance.description)
+        instance.price = validated_data.get("price", instance.price)
+        instance.save()
+
+        # Optionally clear existing images if desired
+        # instance.images.all().delete()
+
+        for image_data in images_data:
+            ProductImage.objects.create(product=instance, **image_data)
+        return instance

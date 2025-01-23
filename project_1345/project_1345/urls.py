@@ -15,8 +15,14 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+import sys
+import re
+
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
+from django.conf import settings
+from django.conf.urls.static import static
+from django.views.static import serve
 
 # from django.urls import re_path
 from rest_framework import permissions
@@ -75,3 +81,19 @@ urlpatterns = [
     path("api/v1/products/", include("product.urls")),
     path("api/v1/category/", include("category.urls")),
 ]
+if "--insecure" in sys.argv:
+    print("** Including static files media --insecure")
+
+    def custom_static(prefix, view=serve, **kwargs):
+        return [
+            re_path(
+                r"^%s(?P<path>.*)$" % re.escape(prefix.lstrip("/")),
+                view,
+                kwargs=kwargs,
+            ),
+        ]
+
+    urlpatterns += custom_static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+elif settings.DEBUG:
+    print("** Including static files media in DEBUG")
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -14,6 +14,7 @@ import os
 from pathlib import Path
 
 import redis as pure_redis
+from django.conf.global_settings import MEDIA_ROOT
 from dotenv import load_dotenv
 
 # from django.conf.global_settings import STATIC_ROOT
@@ -245,3 +246,7 @@ if DEBUG:
             },
         },
     }
+
+MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_URL = "/media/"
+PRODUCT_IMAGE_FOLDER = "product_images"

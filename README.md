@@ -4,7 +4,8 @@ Team Challenge project #1345. Test and education with git. Any action from co-ow
 ## Swager docs ...
 URL: / or /docs/swagger/
 
-![Screenshot 2025-01-22 at 21-52-29 PROJECT 1345 - API](https://github.com/user-attachments/assets/68842976-ab6e-4cac-97a7-bc8802135adb)
+![Screenshot 2025-01-23 at 04-33-57 PROJECT 1345 - API](https://github.com/user-attachments/assets/915c6341-5da3-44a8-afd5-4f1e3ffe1a73)
+
 
 ## ReDoc
 ### Product List 
@@ -18,6 +19,10 @@ URL: /docs/redoc/
 URL: /api/v1/products/
 
 ![Screenshot 2025-01-22 at 21-57-19 Product List – Django REST framework](https://github.com/user-attachments/assets/1dd5d371-db28-4e9a-a885-c7cf4299847a)
+
+## Django Admin
+Uploaded image:
+![Знімок екрана 2025-01-23 о 05 10 44](https://github.com/user-attachments/assets/57e0b75e-e87b-4405-a008-384f33f78ec9)
 
 
 ## API

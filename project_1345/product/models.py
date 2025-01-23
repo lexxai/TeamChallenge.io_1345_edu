@@ -1,3 +1,7 @@
+import uuid
+from pathlib import Path
+
+from django.conf import settings
 from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchVectorField, SearchVector
 from django.core.exceptions import ValidationError, FieldError
@@ -9,15 +13,30 @@ from category.models import Category, CategorySchema
 
 # Create your models here.
 class Product(models.Model):
-    name = models.CharField(max_length=255)
-    description = models.TextField(null=True, blank=True)
-    owner = models.CharField(max_length=255, null=True, blank=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    property = models.JSONField(null=True, blank=True, default=dict)
-    created_at = models.DateField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    active = models.BooleanField(default=True)
+    name = models.CharField(max_length=255, help_text="Name of the product")
+    description = models.TextField(
+        null=True, blank=True, help_text="Description of the product"
+    )
+    owner = models.CharField(
+        max_length=255, null=True, blank=True, help_text="Owner of the product"
+    )
+    price = models.DecimalField(
+        max_digits=10, decimal_places=2, help_text="Price of the product, format: 0.00"
+    )
+    category = models.ForeignKey(
+        Category, on_delete=models.CASCADE, help_text="Category of the product"
+    )
+    property = models.JSONField(
+        null=True,
+        blank=True,
+        default=dict,
+        help_text="Property of the product. Example: {'color': 'red', 'size': 34}",
+    )
+    created_at = models.DateField(auto_now_add=True, help_text="Creation date")
+    updated_at = models.DateTimeField(
+        auto_now=True, help_text="Last updated date and time"
+    )
+    active = models.BooleanField(default=True, help_text="Is the product active?")
 
     class Meta:
         ordering = ["-updated_at"]
@@ -106,4 +125,29 @@ class Product(models.Model):
         return '<Product object ({}) "{}">'.format(self.id, self.name)
 
     def __str__(self):
-        return self.name
+        return f"[{self.id}] {self.name}"
+
+
+def generate_upload_to(instance, filename):
+    # Generate a unique UUID for the file name
+    filename = Path(filename)
+    return f"{settings.PRODUCT_IMAGE_FOLDER}/{uuid.uuid4()}{filename.suffix}"
+
+
+class ProductImage(models.Model):
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name="images"
+    )
+    image = models.ImageField(upload_to=generate_upload_to)
+
+    def __str__(self):
+        return self.product.name
+
+    def __repr__(self):
+        return '<ProductImage object ({}) "{}">'.format(self.id, self.product.name)
+
+    class Meta:
+        unique_together = ("product", "image")
+        indexes = [
+            models.Index(fields=["product"]),
+        ]
