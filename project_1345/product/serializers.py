@@ -76,9 +76,22 @@ class ProductImageSerializer(serializers.ModelSerializer):
         model = ProductImage
         fields = ["id", "image", "product"]
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        return {"id": data["id"], "image": data["image"]}
+
+
+class ProductImageShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImage
+        fields = (
+            "id",
+            "image",
+        )
+
 
 class ProductSerializer(serializers.ModelSerializer):
-    images = ProductImageSerializer(many=True, required=False)
+    images = ProductImageShortSerializer(many=True, required=False)
     property = serializers.DictField(
         child=AnnotatedMultiTypeField(),
         help_text="Key-value pairs where key is string and values can be 'str', 'int', 'float', or 'bool'. Example: {'color': 'red', 'size': 34}",
