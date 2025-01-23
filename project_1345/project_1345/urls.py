@@ -33,6 +33,7 @@ urlpatterns = [
     path("api/v1/products/", include("product.urls")),
     path("api/v1/category/", include("category.urls")),
     path("api/v1/", include("users.urls")),
+    path("api-auth/", include("rest_framework.urls")),  # For session login/logout
 ]
 
 if "--insecure" in sys.argv:

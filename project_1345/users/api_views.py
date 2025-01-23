@@ -36,11 +36,12 @@ class BasicAuthLoginView(APIView):
             )
 
 
-class SessionToTokenView(GenericAPIView):
+class SessionToTokenView(APIView):
     """
     Convert a logged-in session user into a JWT token.
     """
 
+    serializer_class = None
     permission_classes = [IsAuthenticated]  # Ensure the user is logged in
 
     def get(self, request):
