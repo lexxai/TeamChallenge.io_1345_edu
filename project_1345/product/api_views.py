@@ -26,7 +26,9 @@ class ProductsPagination(LimitOffsetPagination):
 
 class ProductFilter(FilterSet):
     property = CharFilter(method="filter_property")
-    images = filters.BooleanFilter(method="filter_has_image")
+    has_image = filters.BooleanFilter(
+        field_name="has_image", method="filter_has_image", label="Has Image"
+    )  # Use 'has_image' in query params
 
     class Meta:
         model = Product
@@ -66,7 +68,7 @@ class ProductViewSet(ModelViewSet):
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
     filterset_class = ProductFilter
     pagination_class = ProductsPagination
-    ordering_fields = ["name", "price", "-updated_at"]
+    ordering_fields = ["name", "price", "updated_at"]
     ordering = ["-updated_at"]  # Default ordering same as on model index and ordering
     search_fields = ("name", "description")  # Used by DRF GUI and as a fallback
 
