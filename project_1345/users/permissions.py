@@ -21,23 +21,27 @@ class IsInGroup(BasePermission):
 class IsAuthenticatedOrReadOnly(BasePermission):
     """
     Custom permission to allow read-only access for unauthenticated users
-    and restrict write access to authenticated users with specific roles (e.g., admins).
+    and restrict write access to authenticated users with specific roles (e.g., managers).
     """
+
+    managers_groups = ["managers"]  # Set the required groups here
 
     def has_permission(self, request, view):
         # Allow read-only methods (GET, HEAD, OPTIONS) for everyone
         if request.method in ["GET", "HEAD", "OPTIONS"]:
             return True
 
-        # For write methods (POST, PUT, DELETE), check if the user is authenticated
-        # and if they are an admin (or have the required permissions)
-        # For write methods, check if the user is authenticated
+        # For write methods, check if the user is authenticated and has the required role
         if request.user and request.user.is_authenticated:
-            # Allow only admins or users in the "editors" group
             return (
-                request.user.is_staff
-                or request.user.groups.filter(name="editors").exists()
+                request.user.is_staff  # Allow staff
+                or request.user.groups.filter(
+                    name__in=self.managers_groups
+                ).exists()  # Allow managers
             )
+
+        # Deny access for unauthenticated users
+        return False
 
 
 class IsInJWTGroup(BasePermission):
