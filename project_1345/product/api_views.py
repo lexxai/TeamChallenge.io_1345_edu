@@ -9,7 +9,11 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 
 
-from .serializers import ProductSerializer, ProductImageSerializer
+from .serializers import (
+    ProductSerializer,
+    ProductImageSerializer,
+    ProductImageShortSerializer,
+)
 from .models import Product, ProductImage
 
 
@@ -66,13 +70,6 @@ class ProductViewSet(ModelViewSet):
                 description="ID of the product",
                 required=True,
             ),
-            OpenApiParameter(
-                "id",
-                type=int,
-                location="path",
-                description="ID of the image",
-                required=False,
-            ),
         ]
     ),
     retrieve=extend_schema(
@@ -94,11 +91,13 @@ class ProductViewSet(ModelViewSet):
         ]
     ),
     # create=extend_schema(
-    #     parameters=[
-    #         OpenApiParameter(
-    #             "product_pk", type=int, description="ID of the product", required=True
-    #         )
-    #     ]
+    #     # request={"multipart/form-data": ProductImageShortSerializer},
+    #     # responses=ProductImageShortSerializer,
+    #     # parameters=[
+    #     #     OpenApiParameter(
+    #     #         "product_pk", type=int, description="ID of the product", required=True
+    #     #     )
+    #     # ]
     # ),
     # retrieve=extend_schema(
     #     parameters=[
@@ -136,6 +135,9 @@ class ProductImageViewSet(ModelViewSet):
     serializer_class = ProductImageSerializer
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return ProductImage.objects.none()
+
         # Filter images by product ID from the URL
         return ProductImage.objects.filter(product_id=self.kwargs["product_pk"])
 

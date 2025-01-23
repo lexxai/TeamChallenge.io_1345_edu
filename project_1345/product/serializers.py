@@ -1,4 +1,7 @@
+from pathlib import Path
+
 from django.core.exceptions import FieldError
+from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -80,8 +83,18 @@ class ProductImageSerializer(serializers.ModelSerializer):
         data = super().to_representation(instance)
         return {"id": data["id"], "image": data["image"]}
 
+    def update(self, instance, validated_data):
+        # Check if image is being updated
+        if "image" in validated_data:
+            old_image = instance.image
+            if old_image:
+                old_image_path = Path(old_image.path)
+                if old_image_path.exists():
+                    old_image_path.unlink()  # Delete the old image
+        return super().update(instance, validated_data)
 
-class ProductImageShortSerializer(serializers.ModelSerializer):
+
+class ProductImageShortSerializer(ProductImageSerializer):
     class Meta:
         model = ProductImage
         fields = (
