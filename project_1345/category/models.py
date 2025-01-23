@@ -5,7 +5,13 @@ from django.core.cache import cache
 # Create your models here.
 class Category(models.Model):
     name = models.CharField(max_length=255, help_text="Name of the category")
-    parent = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True, help_text="Parent category. Null if it's a root category")
+    parent = models.ForeignKey(
+        "self",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        help_text="Parent category. Null if it's a root category",
+    )
     active = models.BooleanField(default=True, help_text="Is the category active?")
 
     def __repr__(self):
@@ -50,7 +56,11 @@ class CategorySchema(models.Model):
         Category, on_delete=models.CASCADE
     )  # Link to the Category model
     schema = models.JSONField(
-        null=True, blank=True, default=dict, help_text="JSON representation of the schema. Example: {'color': {'type': 'str', 'required': true}, 'size': {'type': 'int'}}"
+        null=True,
+        blank=True,
+        default=dict,
+        help_text="JSON representation of the schema. Types: [str, int, float, bool]. "
+        "Example: {'color': {'type': 'str', 'required': true}, 'size': {'type': 'int'}}",
     )  # Store the schema as a JSON object
 
     class Meta:

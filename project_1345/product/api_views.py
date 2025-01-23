@@ -2,7 +2,12 @@ import json
 
 from django.db import connection
 from django.db.models import Count
-from django_filters import FilterSet, CharFilter
+from django_filters import (
+    FilterSet,
+    CharFilter,
+    BooleanFilter,
+    ModelChoiceFilter,
+)
 from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.viewsets import ModelViewSet
@@ -10,7 +15,7 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters import rest_framework as filters
 
-
+from category.models import Category
 from .serializers import (
     ProductSerializer,
     ProductImageSerializer,
@@ -25,9 +30,34 @@ class ProductsPagination(LimitOffsetPagination):
 
 
 class ProductFilter(FilterSet):
-    property = CharFilter(method="filter_property")
+    # Filtering by category (select from available categories)
+    category = ModelChoiceFilter(
+        queryset=Category.objects.filter(active=True),
+        label="Category",
+        help_text="<br>Filter by product category",
+    )
+
+    active = BooleanFilter(
+        field_name="active",
+        label="Active",
+        help_text="Filter by active status (True/False).",
+    )
+    owner = CharFilter(
+        field_name="owner",
+        lookup_expr="icontains",
+        label="Owner",
+        help_text="Filter by product owner.",
+    )
+
+    property = CharFilter(
+        method="filter_property",
+        help_text="<br>Filter by property. It JSON object. Example: {'color': 'red', 'size': 34}",
+    )
     has_image = filters.BooleanFilter(
-        field_name="has_image", method="filter_has_image", label="Has Image"
+        field_name="has_image",
+        method="filter_has_image",
+        label="Has Image",
+        help_text="<br>Filter products that have at least one image",
     )  # Use 'has_image' in query params
 
     class Meta:

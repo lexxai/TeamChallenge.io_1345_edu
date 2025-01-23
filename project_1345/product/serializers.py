@@ -104,12 +104,19 @@ class ProductImageShortSerializer(ProductImageSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    images = ProductImageShortSerializer(many=True, required=False)
+    images = ProductImageShortSerializer(
+        many=True,
+        required=False,
+        help_text="Product images list, uploaded in base64 format. Can be added later.",
+    )
     property = serializers.DictField(
         child=AnnotatedMultiTypeField(),
-        help_text="Key-value pairs where key is string and values can be 'str', 'int', 'float', or 'bool'. Example: {'color': 'red', 'size': 34}",
+        help_text="Key-value pairs where key is string and values can be 'str', 'int', 'float', or 'bool'. "
+        "Example: {'color': 'red', 'size': 34}. Depends on category schema.",
     )
-    price = CustomDecimalField(max_digits=10, decimal_places=2)
+    price = CustomDecimalField(
+        max_digits=10, decimal_places=2, help_text="Price of the product, format: 0.00"
+    )
 
     class Meta:
         model = Product
