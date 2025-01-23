@@ -29,7 +29,7 @@ def update_image_file(sender, instance, created, **kwargs):
                 if old_image_path.exists():
                     old_image_path.unlink()  # Delete the old file
             except ValueError:
-                pass  # Handle invalid paths
+                ...  # Handle invalid paths
 
 
 @receiver(post_delete, sender=ProductImage)
