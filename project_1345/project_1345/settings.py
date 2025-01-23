@@ -214,6 +214,11 @@ REST_FRAMEWORK = {
     #     "rest_framework.renderers.JSONRenderer",
     #     "rest_framework.renderers.BrowsableAPIRenderer",
     # ],
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework.authentication.BasicAuthentication",  # For initial login
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+    # "DEFAULT_PERMISSION_CLASSES": ("",),
 }
 
 SPECTACULAR_SETTINGS = {
@@ -250,3 +255,4 @@ if DEBUG:
 MEDIA_ROOT = BASE_DIR / "media"
 MEDIA_URL = "/media/"
 PRODUCT_IMAGE_FOLDER = "product_images"
+VERSION = "0.1.0"

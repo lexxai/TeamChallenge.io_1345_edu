@@ -2,6 +2,7 @@ from drf_spectacular.openapi import AutoSchema
 from drf_spectacular.utils import extend_schema_serializer, OpenApiExample
 from rest_framework.exceptions import ValidationError, NotFound
 from rest_framework.generics import GenericAPIView
+from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -26,9 +27,11 @@ from .serializers import CartItemSerializer, CartContentSerializer, CartUpdateSe
     ),
     post=extend_schema(),
 )
+@extend_schema(tags=["Cart API"])
 class CartView(APIView):
     # serializer_class = CartContentSerializer
     serializer_class = CartItemSerializer
+    permission_classes = [AllowAny]
 
     def get_serializer_class(self):
         """
@@ -249,12 +252,14 @@ class CartView(APIView):
         },
     ),
 )
+@extend_schema(tags=["Cart API"])
 class CartGetUpdateView(APIView):
     """
     Retrieve and update or delete an item in the cart
     """
 
     serializer_class = CartItemSerializer
+    permission_classes = [AllowAny]
 
     def get(self, request, product_id: int = None, *args, **kwargs):
         """

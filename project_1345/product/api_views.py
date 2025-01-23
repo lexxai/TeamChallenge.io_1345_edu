@@ -9,17 +9,19 @@ from django_filters import (
     ModelChoiceFilter,
 )
 from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter
+from rest_framework.authentication import BasicAuthentication
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters import rest_framework as filters
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from category.models import Category
+from users.permissions import IsAuthenticatedOrReadOnly
 from .serializers import (
     ProductSerializer,
     ProductImageSerializer,
-    ProductImageShortSerializer,
 )
 from .models import Product, ProductImage
 
@@ -91,8 +93,14 @@ class ProductFilter(FilterSet):
         return queryset  # Return the queryset unfiltered if no value is passed
 
 
+@extend_schema(tags=["Products API"])
 class ProductViewSet(ModelViewSet):
     # queryset = Product.objects.all()
+    authentication_classes = [
+        BasicAuthentication,
+        JWTAuthentication,
+    ]  # Support both methods
+    permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = Product.objects.prefetch_related("images")
     serializer_class = ProductSerializer
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
@@ -107,6 +115,9 @@ class ProductViewSet(ModelViewSet):
         if connection.vendor == "postgresql":
             return ("search_vector",)
         return self.search_fields
+
+
+# ----- PRODUCT IMAGE --------
 
 
 @extend_schema_view(
@@ -140,11 +151,13 @@ class ProductViewSet(ModelViewSet):
         ]
     ),
 )
+@extend_schema(tags=["Product's images API"])
 class ProductImageViewSet(ModelViewSet):
     """
     Operate with the images of product by product_pk
     """
 
+    permission_classes = [IsAuthenticatedOrReadOnly]
     serializer_class = ProductImageSerializer
 
     def get_queryset(self):
