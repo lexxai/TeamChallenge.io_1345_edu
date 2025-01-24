@@ -1,6 +1,5 @@
 import hashlib
 import json
-from venv import logger
 
 from django.core.cache import cache
 from django.db import connection
@@ -97,6 +96,17 @@ class ProductFilter(FilterSet):
         return queryset  # Return the queryset unfiltered if no value is passed
 
 
+class CustomProductsPagination(ProductsPagination):
+    display_page_controls = True
+    # @property
+    # def display_page_controls(self):
+    #     return True
+    #
+    # @display_page_controls.setter
+    # def display_page_controls(self, value): ...
+    ...
+
+
 @extend_schema(tags=["Products API"])
 class ProductViewSet(ModelViewSet):
     # queryset = Product.objects.all()
@@ -117,35 +127,44 @@ class ProductViewSet(ModelViewSet):
             return ("search_vector",)
         return self.search_fields
 
+    def _configure_paginator_from_cache(self, cached_data):
+        """
+        Configures the paginator with cached data.
+        """
+        query_params = self.request.query_params
+        count = int(cached_data.get("count", 0))
+        limit = int(query_params.get("limit", self.paginator.default_limit))
+        offset = int(query_params.get("offset", 0))
+
+        self.paginator.display_page_controls = count > limit
+        self.paginator.request = self.request
+        self.paginator.limit = limit
+        self.paginator.offset = offset
+        self.paginator.count = count
+
+    @staticmethod
+    def clear_product_cache():
+        # Clear all cached product lists
+        cache.delete_pattern("products_*")
+
     def list(self, request, *args, **kwargs):
-        # Get filters from query parameters (e.g., category, price, etc.)
-        query_params = request.query_params.copy()
-        query_params["offset"] = query_params.get("offset", 0)
-        # Start with a base cache key
+        query_params = request.query_params
         cache_prefix = "products_"
-        cache_keys = []
-        # Add each query parameter to the cache key (ignore None values)
-        for key, value in query_params.items():
-            if value:  # Skip empty values if needed
-                cache_keys.append(f"{key}_{value}")
+        cache_keys = [f"{k}_{v}" for k, v in query_params.items() if v]
         cache_key = "_".join(cache_keys)
-
         cache_key = cache_prefix + hashlib.sha256(cache_key.encode("utf-8")).hexdigest()
-
-        # Try to get the data from cache
         cached_product_list = cache.get(cache_key)
 
         if cached_product_list:
             # Return cached data if available
-            cached_product_list_headers = cache.get(cache_key + "_H")
-            return Response(cached_product_list, headers=cached_product_list_headers)
+            self._configure_paginator_from_cache(cached_product_list)
+            return Response(cached_product_list)
 
         # Fetch data from the database (taking pagination and filters into account)
         response = super().list(request.data, *args, **kwargs)
 
         # Cache the serialized data of the response (after pagination and filters are applied)
         cache.set(cache_key, response.data, timeout=self.cache_time_out)
-        cache.set(cache_key + "_H", response.headers, timeout=self.cache_time_out)
 
         return response
 
@@ -156,6 +175,7 @@ class ProductViewSet(ModelViewSet):
         # Cache the newly created image
         cache_key = f"product_{product.pk}"
         cache.set(cache_key, product, timeout=self.cache_time_out)
+        self.clear_product_cache()
 
     def perform_update(self, serializer):
         # Update the ProductImage instance
@@ -164,6 +184,7 @@ class ProductViewSet(ModelViewSet):
         # Update the cache with the new data
         cache_key = f"product_{product.pk}"
         cache.set(cache_key, product, timeout=self.cache_time_out)
+        self.clear_product_cache()
 
     def retrieve(self, request, *args, **kwargs):
         """
@@ -192,6 +213,7 @@ class ProductViewSet(ModelViewSet):
             pk = kwargs["pk"]
             cache_key = f"product_{pk}"
             cache.delete(cache_key)
+            self.clear_product_cache()
 
 
 # ----- PRODUCT IMAGE --------
