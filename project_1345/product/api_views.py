@@ -143,29 +143,26 @@ class ProductViewSet(ModelViewSet):
         self.paginator.count = count
 
     @staticmethod
-    def clear_product_cache():
+    def clear_products_cache():
         # Clear all cached product lists
         cache.delete_pattern("products_*")
 
-    def list(self, request, *args, **kwargs):
-        query_params = request.query_params
+    @staticmethod
+    def get_products_cache_key(query_params: dict) -> str:
         cache_prefix = "products_"
         cache_keys = [f"{k}_{v}" for k, v in query_params.items() if v]
         cache_key = "_".join(cache_keys)
-        cache_key = cache_prefix + hashlib.sha256(cache_key.encode("utf-8")).hexdigest()
-        cached_product_list = cache.get(cache_key)
+        return cache_prefix + hashlib.sha256(cache_key.encode("utf-8")).hexdigest()
 
+    def list(self, request, *args, **kwargs):
+        cache_key = self.get_products_cache_key(request.query_params)
+        cached_product_list = cache.get(cache_key)
         if cached_product_list:
-            # Return cached data if available
             self._configure_paginator_from_cache(cached_product_list)
             return Response(cached_product_list)
-
-        # Fetch data from the database (taking pagination and filters into account)
+        # without cached data
         response = super().list(request.data, *args, **kwargs)
-
-        # Cache the serialized data of the response (after pagination and filters are applied)
         cache.set(cache_key, response.data, timeout=self.cache_time_out)
-
         return response
 
     def perform_create(self, serializer):
@@ -175,7 +172,7 @@ class ProductViewSet(ModelViewSet):
         # Cache the newly created image
         cache_key = f"product_{product.pk}"
         cache.set(cache_key, product, timeout=self.cache_time_out)
-        self.clear_product_cache()
+        self.clear_products_cache()
 
     def perform_update(self, serializer):
         # Update the ProductImage instance
@@ -184,7 +181,7 @@ class ProductViewSet(ModelViewSet):
         # Update the cache with the new data
         cache_key = f"product_{product.pk}"
         cache.set(cache_key, product, timeout=self.cache_time_out)
-        self.clear_product_cache()
+        self.clear_products_cache()
 
     def retrieve(self, request, *args, **kwargs):
         """
@@ -213,7 +210,7 @@ class ProductViewSet(ModelViewSet):
             pk = kwargs["pk"]
             cache_key = f"product_{pk}"
             cache.delete(cache_key)
-            self.clear_product_cache()
+            self.clear_products_cache()
 
 
 # ----- PRODUCT IMAGE --------
