@@ -22,6 +22,7 @@ from users.permissions import IsAuthenticatedOrReadOnly
 from .serializers import (
     ProductSerializer,
     ProductImageSerializer,
+    ProductImageCreateSerializer,
 )
 from .models import Product, ProductImage
 

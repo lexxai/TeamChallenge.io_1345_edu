@@ -77,11 +77,14 @@ class ProductImageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProductImage
-        fields = ["__all__"]
+        fields = "__all__"
+        read_only_fields = ("width", "height")  # Make width and height read-only
+        # fields = ("id", "image", "title", "description")
 
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        return {"id": data["id"], "image": data["image"]}
+    # def to_representation(self, instance):
+    #     data = super().to_representation(instance)
+    #     data.pop("product")
+    #     return data
 
     def update(self, instance, validated_data):
         # Check if image is being updated
@@ -94,17 +97,27 @@ class ProductImageSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
 
-class ProductImageShortSerializer(ProductImageSerializer):
+class ProductImageListSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductImage
-        fields = (
-            "id",
-            "image",
-        )
+        fields = ("id", "image", "title", "description", "width", "height")
+        read_only_fields = ("width", "height")
+
+        # def to_representation(self, instance):
+
+    #     data = super().to_representation(instance)
+    #     data.pop("product")
+    #     return data
+
+
+class ProductImageCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImage
+        fields = ("id", "image", "title", "description")
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    images = ProductImageShortSerializer(
+    images = ProductImageListSerializer(
         many=True,
         required=False,
         help_text="Product images list, uploaded in base64 format. Can be added later.",
