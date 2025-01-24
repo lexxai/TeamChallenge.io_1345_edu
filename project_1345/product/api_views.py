@@ -1,5 +1,8 @@
+import hashlib
 import json
+from venv import logger
 
+from django.core.cache import cache
 from django.db import connection
 from django.db.models import Count
 from django_filters import (
@@ -11,6 +14,7 @@ from django_filters import (
 from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
@@ -105,12 +109,89 @@ class ProductViewSet(ModelViewSet):
     ordering_fields = ["name", "price", "updated_at"]
     ordering = ["-updated_at"]  # Default ordering same as on model index and ordering
     search_fields = ("name", "description")  # Used by DRF GUI and as a fallback
+    cache_time_out = 60 * 15
 
     def get_search_fields(self, request):
         """Dynamically determine search fields based on the database backend."""
         if connection.vendor == "postgresql":
             return ("search_vector",)
         return self.search_fields
+
+    def list(self, request, *args, **kwargs):
+        # Get filters from query parameters (e.g., category, price, etc.)
+        query_params = request.query_params.copy()
+        query_params["offset"] = query_params.get("offset", 0)
+        # Start with a base cache key
+        cache_prefix = "products_"
+        cache_keys = []
+        # Add each query parameter to the cache key (ignore None values)
+        for key, value in query_params.items():
+            if value:  # Skip empty values if needed
+                cache_keys.append(f"{key}_{value}")
+        cache_key = "_".join(cache_keys)
+
+        cache_key = cache_prefix + hashlib.sha256(cache_key.encode("utf-8")).hexdigest()
+
+        # Try to get the data from cache
+        cached_product_list = cache.get(cache_key)
+
+        if cached_product_list:
+            # Return cached data if available
+            cached_product_list_headers = cache.get(cache_key + "_H")
+            return Response(cached_product_list, headers=cached_product_list_headers)
+
+        # Fetch data from the database (taking pagination and filters into account)
+        response = super().list(request.data, *args, **kwargs)
+
+        # Cache the serialized data of the response (after pagination and filters are applied)
+        cache.set(cache_key, response.data, timeout=self.cache_time_out)
+        cache.set(cache_key + "_H", response.headers, timeout=self.cache_time_out)
+
+        return response
+
+    def perform_create(self, serializer):
+        # Create the ProductImage instance
+        product = serializer.save()
+
+        # Cache the newly created image
+        cache_key = f"product_{product.pk}"
+        cache.set(cache_key, product, timeout=self.cache_time_out)
+
+    def perform_update(self, serializer):
+        # Update the ProductImage instance
+        product = serializer.save()
+
+        # Update the cache with the new data
+        cache_key = f"product_{product.pk}"
+        cache.set(cache_key, product, timeout=self.cache_time_out)
+
+    def retrieve(self, request, *args, **kwargs):
+        """
+        Overriding retrieve to check cache first before querying the database.
+        """
+        pk = kwargs.get("pk")
+        cache_key = f"product_{pk}"
+
+        # Try fetching from cache
+        cached_product = cache.get(cache_key)
+        if cached_product:
+            return Response(cached_product)
+
+        # If not found in cache, query the database
+        response = super().retrieve(request, *args, **kwargs)
+
+        # Optionally, cache the data after retrieving it from the DB
+        product = response.data
+        cache.set(cache_key, product, timeout=self.cache_time_out)
+
+        return response
+
+    def destroy(self, request, *args, **kwargs):
+        response = super().destroy(request, *args, **kwargs)
+        if response.status_code == 204:
+            pk = kwargs["pk"]
+            cache_key = f"product_{pk}"
+            cache.delete(cache_key)
 
 
 # ----- PRODUCT IMAGE --------
