@@ -4,7 +4,7 @@ Team Challenge project #1345. Test and education with git. Any action from co-ow
 ## Swager docs ...
 URL: / or /docs/swagger/
 
-![Screenshot 2025-01-23 at 04-33-57 PROJECT 1345 - API](https://github.com/user-attachments/assets/915c6341-5da3-44a8-afd5-4f1e3ffe1a73)
+![Screenshot 2025-01-24 at 00-45-26 PROJECT 1345 - API](https://github.com/user-attachments/assets/8bbbfff7-58b0-4429-a499-e47a7606111d)
 
 
 ## ReDoc
@@ -24,6 +24,13 @@ URL: /api/v1/products/
 Uploaded image:
 ![Знімок екрана 2025-01-23 о 05 10 44](https://github.com/user-attachments/assets/57e0b75e-e87b-4405-a008-384f33f78ec9)
 
+
+## Demo Users:
+Retrieve a list of demo users. It temporarily stores them in the cache. Build on start up.
+
+URL: /api/v1/users/demo/
+
+![Знімок екрана 2025-01-24 о 00 34 42](https://github.com/user-attachments/assets/a435d4ed-95ff-4636-8747-9ac92c2c003e)
 
 ## API
 
