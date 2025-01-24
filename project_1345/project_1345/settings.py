@@ -205,7 +205,6 @@ else:
 #         "rest_framework.renderers.JSONRenderer",  # Only render JSON responses
 #     ]
 # }
-
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     # "DEFAULT_SCHEMA_CLASS": "project_1345.schema.CustomAutoSchema",
@@ -215,11 +214,13 @@ REST_FRAMEWORK = {
     #     "rest_framework.renderers.BrowsableAPIRenderer",
     # ],
     "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework.authentication.SessionAuthentication",
         "rest_framework.authentication.BasicAuthentication",  # For initial login
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
     # "DEFAULT_PERMISSION_CLASSES": ("",),
 }
+
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "PROJECT 1345 - API",

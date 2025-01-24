@@ -78,7 +78,11 @@ class ProductImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductImage
         fields = "__all__"
-        read_only_fields = ("width", "height")  # Make width and height read-only
+        read_only_fields = (
+            "width",
+            "height",
+            "product",
+        )  # Make width and height read-only
         # fields = ("id", "image", "title", "description")
 
     # def to_representation(self, instance):

@@ -18,11 +18,10 @@ from django_filters import rest_framework as filters
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from category.models import Category
-from users.permissions import IsAuthenticatedOrReadOnly
+from users.permissions import IsAuthenticatedOrReadOnlyWithMangers
 from .serializers import (
     ProductSerializer,
     ProductImageSerializer,
-    ProductImageCreateSerializer,
 )
 from .models import Product, ProductImage
 
@@ -97,11 +96,7 @@ class ProductFilter(FilterSet):
 @extend_schema(tags=["Products API"])
 class ProductViewSet(ModelViewSet):
     # queryset = Product.objects.all()
-    authentication_classes = [
-        BasicAuthentication,
-        JWTAuthentication,
-    ]  # Support both methods
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnlyWithMangers]
     queryset = Product.objects.prefetch_related("images")
     serializer_class = ProductSerializer
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
@@ -158,7 +153,7 @@ class ProductImageViewSet(ModelViewSet):
     Operate with the images of product by product_pk
     """
 
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnlyWithMangers]
     serializer_class = ProductImageSerializer
 
     def get_queryset(self):

@@ -1,4 +1,4 @@
-from rest_framework.permissions import BasePermission
+from rest_framework.permissions import BasePermission, IsAuthenticatedOrReadOnly
 
 
 class IsInGroup(BasePermission):
@@ -18,7 +18,7 @@ class IsInGroup(BasePermission):
         return any(group in self.required_groups for group in user_groups)
 
 
-class IsAuthenticatedOrReadOnly(BasePermission):
+class IsAuthenticatedOrReadOnlyWithMangers(IsAuthenticatedOrReadOnly):
     """
     Custom permission to allow read-only access for unauthenticated users
     and restrict write access to authenticated users with specific roles (e.g., managers).
