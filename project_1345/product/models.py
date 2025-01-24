@@ -1,6 +1,7 @@
 import uuid
 from pathlib import Path
 
+from PIL import Image
 from django.conf import settings
 from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchVectorField, SearchVector
@@ -142,15 +143,19 @@ class ProductImage(models.Model):
         Product, on_delete=models.CASCADE, related_name="images"
     )
     image = models.ImageField(upload_to=generate_upload_to)
+    width = models.PositiveIntegerField(null=True, blank=True)
+    height = models.PositiveIntegerField(null=True, blank=True)
+    title = models.CharField(max_length=255, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
 
     def pre_save(self, *args, **kwargs):
-        if self.pk:  # Only fetch old data for existing objects
-            old_self = ProductImage.objects.filter(pk=self.pk).first()
-            self.old_image = old_self.image if old_self else None
-        else:
-            self.old_image = None
+        self.prepare_previous_image()
+        self.fill_image_properties()
 
     def post_save(self, *args, **kwargs):
+        self.remove_previous_image()
+
+    def remove_previous_image(self):
         if self.old_image and (not self.image or self.old_image != self.image):
             try:
                 old_image_path = Path(self.old_image.path)
@@ -158,6 +163,18 @@ class ProductImage(models.Model):
                     old_image_path.unlink()  # Delete the old file
             except ValueError:
                 ...  # Handle invalid paths
+
+    def prepare_previous_image(self):
+        if self.pk:  # Only fetch old data for existing objects
+            old_self = ProductImage.objects.filter(pk=self.pk).first()
+            self.old_image = old_self.image if old_self else None
+        else:
+            self.old_image = None
+
+    def fill_image_properties(self):
+        if self.image:
+            # Open the image file for reading wxh
+            self.width, self.height = self.image.width, self.image.height
 
     def save(self, *args, **kwargs):
         self.pre_save()
