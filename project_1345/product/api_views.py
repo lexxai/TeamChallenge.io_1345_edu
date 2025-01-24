@@ -119,7 +119,8 @@ class ProductViewSet(ModelViewSet):
     ordering_fields = ["name", "price", "updated_at"]
     ordering = ["-updated_at"]  # Default ordering same as on model index and ordering
     search_fields = ("name", "description")  # Used by DRF GUI and as a fallback
-    cache_time_out = 60 * 15
+    cache_time_out = 60 * 60
+    cache_enabled = True
 
     def get_search_fields(self, request):
         """Dynamically determine search fields based on the database backend."""
@@ -144,8 +145,16 @@ class ProductViewSet(ModelViewSet):
 
     @staticmethod
     def clear_products_cache():
+        if ProductViewSet.cache_enabled:
+            # Clear all cached product lists
+            cache.delete_pattern("products_*")
+
+    @staticmethod
+    def clear_product_cache(pk: int):
         # Clear all cached product lists
-        cache.delete_pattern("products_*")
+        if ProductViewSet.cache_enabled:
+            cache.delete(ProductViewSet.get_product_cache_key(pk))
+            ProductViewSet.clear_products_cache()
 
     @staticmethod
     def get_products_cache_key(query_params: dict) -> str:
@@ -154,63 +163,82 @@ class ProductViewSet(ModelViewSet):
         cache_key = "_".join(cache_keys)
         return cache_prefix + hashlib.sha256(cache_key.encode("utf-8")).hexdigest()
 
+    @staticmethod
+    def get_product_cache_key(pk: int) -> str:
+        return f"product_{pk}"
+
+    def set_product_cache(
+        self, data: dict | str, pk: int = None, cache_key: str = None
+    ):
+        if self.cache_enabled is False:
+            return
+        if cache_key is None and pk is not None:
+            cache_key = self.get_product_cache_key(pk=pk)
+        if cache_key:
+            cache.set(cache_key, data, timeout=self.cache_time_out)
+
+    def get_product_cache(self, pk: int = None, cache_key: str = None) -> any:
+        if self.cache_enabled is False:
+            return None
+        if cache_key is None and pk is not None:
+            cache_key = self.get_product_cache_key(pk=pk)
+        if cache_key:
+            return cache.get(cache_key)
+
     def list(self, request, *args, **kwargs):
-        cache_key = self.get_products_cache_key(request.query_params)
-        cached_product_list = cache.get(cache_key)
-        if cached_product_list:
-            self._configure_paginator_from_cache(cached_product_list)
-            return Response(cached_product_list)
+        cache_key = None
+        if self.cache_enabled:
+            cache_key = self.get_products_cache_key(request.query_params)
+            cached_product_list = self.get_product_cache(cache_key=cache_key)
+            if cached_product_list:
+                self._configure_paginator_from_cache(cached_product_list)
+                return Response(cached_product_list)
         # without cached data
         response = super().list(request.data, *args, **kwargs)
-        cache.set(cache_key, response.data, timeout=self.cache_time_out)
+        if self.cache_enabled:
+            self.set_product_cache(response.data, cache_key=cache_key)
         return response
 
     def perform_create(self, serializer):
         # Create the ProductImage instance
         product = serializer.save()
-
-        # Cache the newly created image
-        cache_key = f"product_{product.pk}"
-        cache.set(cache_key, product, timeout=self.cache_time_out)
-        self.clear_products_cache()
+        if self.cache_enabled:
+            # Cache the newly created image
+            self.set_product_cache(product, pk=product.pk)
+            self.clear_products_cache()
 
     def perform_update(self, serializer):
         # Update the ProductImage instance
         product = serializer.save()
+        if self.cache_enabled:
+            # Update the cache with the new data
+            self.set_product_cache(product, pk=product.pk)
+            self.clear_products_cache()
 
-        # Update the cache with the new data
-        cache_key = f"product_{product.pk}"
-        cache.set(cache_key, product, timeout=self.cache_time_out)
-        self.clear_products_cache()
+    def perform_destroy(self, instance):
+        super().perform_destroy(instance)
+        if self.cache_enabled:
+            pk = self.kwargs["pk"]
+            self.clear_product_cache(pk=pk)
 
     def retrieve(self, request, *args, **kwargs):
         """
         Overriding retrieve to check cache first before querying the database.
         """
-        pk = kwargs.get("pk")
-        cache_key = f"product_{pk}"
-
-        # Try fetching from cache
-        cached_product = cache.get(cache_key)
-        if cached_product:
-            return Response(cached_product)
+        cache_key = None
+        if self.cache_enabled:
+            cache_key = self.get_product_cache_key(pk=kwargs.get("pk"))
+            cached_product = self.get_product_cache(cache_key=cache_key)
+            # Try fetching from cache
+            if cached_product:
+                return Response(cached_product)
 
         # If not found in cache, query the database
         response = super().retrieve(request, *args, **kwargs)
-
-        # Optionally, cache the data after retrieving it from the DB
-        product = response.data
-        cache.set(cache_key, product, timeout=self.cache_time_out)
-
+        if self.cache_enabled:
+            # Optionally, cache the data after retrieving it from the DB
+            self.set_product_cache(response.data, cache_key=cache_key)
         return response
-
-    def destroy(self, request, *args, **kwargs):
-        response = super().destroy(request, *args, **kwargs)
-        if response.status_code == 204:
-            pk = kwargs["pk"]
-            cache_key = f"product_{pk}"
-            cache.delete(cache_key)
-            self.clear_products_cache()
 
 
 # ----- PRODUCT IMAGE --------
@@ -265,5 +293,17 @@ class ProductImageViewSet(ModelViewSet):
 
     def perform_create(self, serializer):
         # Automatically assign the product from the URL
-        product = Product.objects.get(pk=self.kwargs["product_pk"])
+        pk = self.kwargs["product_pk"]
+        product = Product.objects.get(pk=pk)
         serializer.save(product=product)
+        ProductViewSet.clear_product_cache(pk=pk)
+
+    def perform_update(self, serializer):
+        super().perform_update(serializer)
+        pk = self.kwargs["product_pk"]
+        ProductViewSet.clear_product_cache(pk=pk)
+
+    def perform_destroy(self, instance):
+        super().perform_destroy(instance)
+        pk = self.kwargs["product_pk"]
+        ProductViewSet.clear_product_cache(pk=pk)
