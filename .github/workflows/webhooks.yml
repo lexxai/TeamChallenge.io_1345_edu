@@ -1,3 +1,4 @@
+
 name: DEPLOY
 
 permissions:
@@ -13,7 +14,7 @@ permissions:
 on:
   pull_request:
   push:
-    branches: [ dev-lexxai ]
+    branches: [ dev-lexxai, dev ]
 
 jobs:
   ci:
@@ -22,7 +23,6 @@ jobs:
       - uses: actions/checkout@v3
       - name: Deploy
         # Only run this step if the branch is main
-        # if: ${{ github.event.workflow_run.conclusion == 'success' }} && github.ref == 'refs/heads/dev-lexxai-product'
         env:
           deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
         run: |
