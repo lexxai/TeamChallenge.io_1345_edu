@@ -6,7 +6,7 @@
 
 ![admin-languages.png](img/admin-languages.png)
 
-## Product 
+## ProductTranslation 
 ### Translated fields:
 - `name` - назва продукту
 - `description` - опис продукту
@@ -19,9 +19,20 @@
 
 ![db-model-product.png](img/db-model-product.png)
 ![db-model-product-translation.png](img/db-model-product-translation.png)
+![db_table_producttranslation.png](img/db_table_producttranslation.png)
+
+### CategoryTranslation
+
+
+
+### CategorySchemaTranslation
 
 
 ### App language
-- models: `Language`, `ProductTranslation`
+- models: 
+  - `Language`
+  - `ProductTranslation`
+  - `CategoryTranslation`
+  - `CategorySchemaTranslation`
 - serializers: `ProductTranslationSerializer`
 - admin: `LanguageAdmin`
