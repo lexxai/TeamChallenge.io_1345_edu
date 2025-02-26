@@ -18,8 +18,6 @@ from django.conf.global_settings import MEDIA_ROOT
 from dotenv import load_dotenv
 from django.utils.translation import gettext as _
 
-# from utils.get_languages import get_language_settings
-
 # from django.conf.global_settings import STATIC_ROOT
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -267,6 +265,3 @@ MEDIA_ROOT = BASE_DIR / "media"
 MEDIA_URL = "/media/"
 PRODUCT_IMAGE_FOLDER = "product_images"
 VERSION = "0.1.0"
-
-# LANGUAGES.extend(get_language_settings(LANGUAGES))
-# print(f"LANGUAGES: {LANGUAGES}")
