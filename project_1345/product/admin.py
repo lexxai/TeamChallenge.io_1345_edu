@@ -5,6 +5,7 @@ from django.core.exceptions import FieldError, ValidationError
 from django.forms import model_to_dict
 from django.utils.translation import gettext_lazy as _
 
+from language.models import ProductTranslation
 from .models import Product, ProductImage
 from .serializers import ProductSerializer
 
@@ -49,6 +50,15 @@ class HasImagesFilter(admin.SimpleListFilter):
         return queryset
 
 
+class ProductTranslationInline(
+    admin.TabularInline
+):  # Or admin.StackedInline for a different layout
+    model = ProductTranslation
+    extra = 1  # Number of empty forms to display
+    verbose_name = _("Translation")
+    verbose_name_plural = _("Translations")
+
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = (
@@ -72,7 +82,7 @@ class ProductAdmin(admin.ModelAdmin):
     )  # Add filters for quick filtering
     ordering = ("-created_at",)  # Default ordering in the admin
     readonly_fields = ("id", "created_at", "updated_at")  # Make timestamps read-only
-    inlines = [ProductImageInline]
+    inlines = [ProductImageInline, ProductTranslationInline]
 
     def save_model1(self, request, obj, form, change):
         try:
