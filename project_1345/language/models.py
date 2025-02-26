@@ -14,6 +14,10 @@ class Language(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = _("Language")
+        verbose_name_plural = _("Languages")
+
 
 class ProductTranslation(models.Model):
     product = models.ForeignKey(

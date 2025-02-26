@@ -8,42 +8,73 @@ from django.contrib.postgres.search import SearchVectorField, SearchVector
 from django.core.exceptions import ValidationError, FieldError
 from django.db import models, connection
 from django.db.models import Q
+from django.utils.translation import gettext_lazy as _
+
 
 from category.models import Category, CategorySchema
 
 
 # Create your models here.
 class Product(models.Model):
-    name = models.CharField(max_length=255, help_text="Name of the product")
+    name = models.CharField(
+        max_length=255, verbose_name=_("Name"), help_text=_("Name of the product")
+    )
     description = models.TextField(
-        null=True, blank=True, help_text="Description of the product"
+        null=True,
+        blank=True,
+        verbose_name=_("Description"),
+        help_text=_("Description of the product"),
     )
     sku = models.CharField(
-        max_length=255, unique=True, null=True, blank=True
+        max_length=255,
+        unique=True,
+        null=True,
+        blank=True,
+        verbose_name=_("SKU"),
+        help_text=_("Stock Keeping Unit of the product"),
     )  # Stock Keeping Unit
     owner = models.CharField(
-        max_length=255, null=True, blank=True, help_text="Owner of the product"
+        max_length=255,
+        null=True,
+        blank=True,
+        verbose_name=_("Owner"),
+        help_text=_("Owner of the product"),
     )
     price = models.DecimalField(
-        max_digits=10, decimal_places=2, help_text="Price of the product, format: 0.00"
+        max_digits=10,
+        decimal_places=2,
+        verbose_name=_("Price"),
+        help_text=_("Price of the product, format: 0.00"),
     )
     category = models.ForeignKey(
-        Category, on_delete=models.CASCADE, help_text="Category of the product"
+        Category,
+        on_delete=models.CASCADE,
+        verbose_name=_("Category"),
+        help_text=_("Category of the product"),
     )
     property = models.JSONField(
         null=True,
         blank=True,
         default=dict,
-        help_text="Property of the product. Example: {'color': 'red', 'size': 34}",
+        verbose_name=_("Property"),
+        help_text=f"{_('Property of the product')}. Example: {{'color': 'red', 'size': 34}}",
     )
-    created_at = models.DateField(auto_now_add=True, help_text="Creation date")
+    created_at = models.DateField(
+        auto_now_add=True, verbose_name=_("Created"), help_text=_("Creation date")
+    )
     updated_at = models.DateTimeField(
-        auto_now=True, help_text="Last updated date and time"
+        auto_now=True,
+        verbose_name=_("Updated"),
+        help_text=_("Last updated date and time"),
     )
-    active = models.BooleanField(default=True, help_text="Is the product active?")
+    active = models.BooleanField(
+        default=True, verbose_name=_("Active"), help_text=_("Is the product active?")
+    )
 
     class Meta:
         ordering = ["-updated_at"]
+        verbose_name = _("Product")
+        verbose_name_plural = _("Products")
 
         indexes = [
             models.Index(fields=["-updated_at"]),

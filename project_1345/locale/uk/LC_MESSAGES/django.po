@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-26 17:48+0000\n"
+"POT-Creation-Date: 2025-02-26 18:16+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -33,19 +33,19 @@ msgstr "Немає схеми"
 msgid "Schema Properties"
 msgstr "Схема властивостей"
 
-#: category/models.py:8 language/models.py:40
+#: category/models.py:8 language/models.py:44
 msgid "Name of the category"
 msgstr "Назва категорії"
 
 #: category/models.py:14
 msgid "Parent category. Null if it's a root category"
-msgstr "Батькова категорія. Null, якщо це коренева категорія"
+msgstr "Батьківська категорія. Null, якщо це коренева категорія"
 
 #: category/models.py:16
 msgid "Is the category active?"
 msgstr "Категорія активна?"
 
-#: category/models.py:55
+#: category/models.py:55 product/models.py:52
 msgid "Category"
 msgstr "Категорія"
 
@@ -69,15 +69,23 @@ msgstr "Схема категорії"
 msgid "Category Schemas"
 msgstr "Схеми категорії"
 
-#: language/models.py:23
+#: language/models.py:18
+msgid "Language"
+msgstr "Мова"
+
+#: language/models.py:19
+msgid "Languages"
+msgstr "Мови"
+
+#: language/models.py:27 product/models.py:20
 msgid "Name of the product"
 msgstr "Назва продукту"
 
-#: language/models.py:25
+#: language/models.py:29 product/models.py:26
 msgid "Description of the product"
 msgstr "Опис продукту"
 
-#: language/models.py:68 product/admin.py:58
+#: language/models.py:72 product/admin.py:58
 msgid "Translation"
 msgstr "Переклад"
 
@@ -96,3 +104,91 @@ msgstr "Ні"
 #: product/admin.py:59
 msgid "Translations"
 msgstr "Переклади"
+
+#: product/models.py:20
+msgid "Name"
+msgstr "Назва"
+
+#: product/models.py:25
+msgid "Description"
+msgstr "Опис"
+
+#: product/models.py:33
+msgid "SKU"
+msgstr "Штрих-код"
+
+#: product/models.py:34
+#, fuzzy
+#| msgid "Description of the product"
+msgid "Stock Keeping Unit of the product"
+msgstr "Штрих-код продукту"
+
+#: product/models.py:40
+msgid "Owner"
+msgstr "Власник"
+
+#: product/models.py:41
+#, fuzzy
+#| msgid "Name of the product"
+msgid "Owner of the product"
+msgstr "Власник продукту"
+
+#: product/models.py:46
+msgid "Price"
+msgstr "Ціна"
+
+#: product/models.py:47
+#, fuzzy
+#| msgid "Name of the product"
+msgid "Price of the product, format: 0.00"
+msgstr "Ціна продукту, формат: 0.00"
+
+#: product/models.py:53
+#, fuzzy
+#| msgid "Name of the product"
+msgid "Category of the product"
+msgstr "Категорія продукту"
+
+#: product/models.py:59
+msgid "Property"
+msgstr "Властивість"
+
+#: product/models.py:60
+#, fuzzy
+#| msgid "Name of the product"
+msgid "Property of the product"
+msgstr "Властивість продукту"
+
+#: product/models.py:63
+msgid "Created"
+msgstr "Створено"
+
+#: product/models.py:63
+msgid "Creation date"
+msgstr "Дата створення"
+
+#: product/models.py:67
+msgid "Updated"
+msgstr "Оновлено"
+
+#: product/models.py:68
+msgid "Last updated date and time"
+msgstr "Остання дата та час оновлення"
+
+#: product/models.py:71
+msgid "Active"
+msgstr "Активний"
+
+#: product/models.py:71
+#, fuzzy
+#| msgid "Is the category active?"
+msgid "Is the product active?"
+msgstr "Категорія активна?"
+
+#: product/models.py:76
+msgid "Product"
+msgstr "Продукт"
+
+#: product/models.py:77
+msgid "Products"
+msgstr "Продукти"
