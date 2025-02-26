@@ -18,7 +18,9 @@ class Product(models.Model):
     description = models.TextField(
         null=True, blank=True, help_text="Description of the product"
     )
-    sku = models.CharField(max_length=255, unique=True)  # Stock Keeping Unit
+    sku = models.CharField(
+        max_length=255, unique=True, null=True, blank=True
+    )  # Stock Keeping Unit
     owner = models.CharField(
         max_length=255, null=True, blank=True, help_text="Owner of the product"
     )
