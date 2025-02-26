@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-26 16:33+0000\n"
+"POT-Creation-Date: 2025-02-26 17:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
 #: category/admin.py:37 category/admin.py:60
 msgid "No properties defined"
 msgstr ""
@@ -39,6 +40,30 @@ msgstr ""
 
 #: category/models.py:16
 msgid "Is the category active?"
+msgstr ""
+
+#: category/models.py:55
+msgid "Category"
+msgstr ""
+
+#: category/models.py:56
+msgid "Categories"
+msgstr ""
+
+#: category/models.py:63
+msgid "Category associated with the schema"
+msgstr ""
+
+#: category/models.py:69
+msgid "JSON representation of the schema"
+msgstr ""
+
+#: category/models.py:74
+msgid "Category Schema"
+msgstr ""
+
+#: category/models.py:75
+msgid "Category Schemas"
 msgstr ""
 
 #: language/models.py:23
