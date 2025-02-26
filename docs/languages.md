@@ -22,11 +22,11 @@
 ![db_table_producttranslation.png](img/db_table_producttranslation.png)
 
 ### CategoryTranslation
-
-
+![admin-category-translation-01.png](img/admin-category-translation-01.png)
+![admin-category-translation-02.png](img/admin-category-translation-02.png)
 
 ### CategorySchemaTranslation
-
+![admin-categoryshema-translation-01.png.png](img/admin-categoryshema-translation-01.png.png)
 
 ### App language
 - models: 
