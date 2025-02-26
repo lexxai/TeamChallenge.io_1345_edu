@@ -1,5 +1,14 @@
 from django.contrib import admin
+from django.utils.translation import gettext_lazy as _
+
+
+from language.models import CategoryTranslation
 from .models import Category, CategorySchema
+
+
+class CategoryTranslationInline(admin.TabularInline):
+    model = CategoryTranslation
+    extra = 1
 
 
 @admin.register(Category)
@@ -14,6 +23,7 @@ class CategoryAdmin(admin.ModelAdmin):
     search_fields = ("name",)  # Add search functionality
     ordering = ("name",)  # Order by name
     list_editable = ("active",)  # Allow toggling active status in the list view
+    inlines = [CategoryTranslationInline]
 
     def display_schema_properties(self, obj):
         # Fetch the CategorySchema for the current category
@@ -24,12 +34,12 @@ class CategoryAdmin(admin.ModelAdmin):
             schema = category_schema.schema
             # Get only the names of the properties
             property_names = [key for key in schema.keys()]
-            return str(property_names) if property_names else "No properties defined"
-        return "No schema"
+            return str(property_names) if property_names else _("No properties defined")
+        return _("No schema")
 
-    display_schema_properties.short_description = (
-        "Schema Properties"  # Label for the column in admin
-    )
+    display_schema_properties.short_description = _(
+        "Schema Properties"
+    )  # Label for the column in admin
 
 
 @admin.register(CategorySchema)
@@ -41,8 +51,8 @@ class CategorySchemaAdmin(admin.ModelAdmin):
         # Extract the properties from the schema JSON
         # Get only the names of the properties
         property_names = [key for key in obj.schema.keys()]
-        return str(property_names) if property_names else "No properties defined"
+        return str(property_names) if property_names else _("No properties defined")
 
-    display_properties.short_description = (
-        "Schema Properties"  # Custom label for the column
-    )
+    display_properties.short_description = _(
+        "Schema Properties"
+    )  # Custom label for the column
