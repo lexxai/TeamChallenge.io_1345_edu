@@ -8,6 +8,7 @@ from django.contrib.postgres.search import SearchVectorField, SearchVector
 from django.core.exceptions import ValidationError, FieldError
 from django.db import models, connection
 from django.db.models import Q
+from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
 
@@ -57,7 +58,9 @@ class Product(models.Model):
         blank=True,
         default=dict,
         verbose_name=_("Property"),
-        help_text=f"{_('Property of the product')}. Example: {{'color': 'red', 'size': 34}}",
+        help_text=format_lazy(
+            "{}. Example: {{'color': 'red', 'size': 34}}", _("Property of the product")
+        ),
     )
     created_at = models.DateField(
         auto_now_add=True, verbose_name=_("Created"), help_text=_("Creation date")

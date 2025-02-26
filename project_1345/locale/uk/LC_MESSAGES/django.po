@@ -118,8 +118,6 @@ msgid "SKU"
 msgstr "Штрих-код"
 
 #: product/models.py:34
-#, fuzzy
-#| msgid "Description of the product"
 msgid "Stock Keeping Unit of the product"
 msgstr "Штрих-код продукту"
 
@@ -128,8 +126,6 @@ msgid "Owner"
 msgstr "Власник"
 
 #: product/models.py:41
-#, fuzzy
-#| msgid "Name of the product"
 msgid "Owner of the product"
 msgstr "Власник продукту"
 
@@ -138,14 +134,10 @@ msgid "Price"
 msgstr "Ціна"
 
 #: product/models.py:47
-#, fuzzy
-#| msgid "Name of the product"
 msgid "Price of the product, format: 0.00"
 msgstr "Ціна продукту, формат: 0.00"
 
 #: product/models.py:53
-#, fuzzy
-#| msgid "Name of the product"
 msgid "Category of the product"
 msgstr "Категорія продукту"
 
@@ -154,8 +146,6 @@ msgid "Property"
 msgstr "Властивість"
 
 #: product/models.py:60
-#, fuzzy
-#| msgid "Name of the product"
 msgid "Property of the product"
 msgstr "Властивість продукту"
 
@@ -180,8 +170,6 @@ msgid "Active"
 msgstr "Активний"
 
 #: product/models.py:71
-#, fuzzy
-#| msgid "Is the category active?"
 msgid "Is the product active?"
 msgstr "Категорія активна?"
 
