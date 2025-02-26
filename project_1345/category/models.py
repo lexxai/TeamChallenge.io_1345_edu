@@ -51,25 +51,31 @@ class Category(models.Model):
         super().delete(*args, **kwargs)
         self.clear_cache()
 
+    class Meta:
+        verbose_name = _("Category")
+        verbose_name_plural = _("Categories")
+
 
 class CategorySchema(models.Model):
     category = models.ForeignKey(
-        Category, on_delete=models.CASCADE
+        Category,
+        on_delete=models.CASCADE,
+        help_text=_("Category associated with the schema"),
     )  # Link to the Category model
     schema = models.JSONField(
         null=True,
         blank=True,
         default=dict,
-        help_text="JSON representation of the schema. Types: [str, int, float, bool]. "
+        help_text=f"{_('JSON representation of the schema')}. Types: [str, int, float, bool]. "
         "Example: {'color': {'type': 'str', 'required': true}, 'size': {'type': 'int'}}",
     )  # Store the schema as a JSON object
 
     class Meta:
-        verbose_name = "Category Schema"
-        verbose_name_plural = "Category Schemas"
+        verbose_name = _("Category Schema")
+        verbose_name_plural = _("Category Schemas")
 
     def __str__(self):
-        return f"Schema for {self.category.get_full_path()}"  # Return category name for easier identification
+        return f"_('Schema for') {self.category.get_full_path()}"  # Return category name for easier identification
 
     def __repr__(self):
         return str(self)
