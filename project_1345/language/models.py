@@ -1,4 +1,6 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
+
 
 from category.models import Category
 from product.models import Product
@@ -18,9 +20,9 @@ class ProductTranslation(models.Model):
         Product, on_delete=models.CASCADE, related_name="translations"
     )
     language = models.ForeignKey(Language, on_delete=models.CASCADE)
-    name = models.CharField(max_length=255, help_text="Name of the product")
+    name = models.CharField(max_length=255, help_text=_("Name of the product"))
     description = models.TextField(
-        null=True, blank=True, help_text="Description of the product"
+        null=True, blank=True, help_text=_("Description of the product")
     )
 
     class Meta:
