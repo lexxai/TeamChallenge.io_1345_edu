@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 
-from category.models import Category
+from category.models import Category, CategorySchema
 from product.models import Product
 
 
@@ -44,3 +44,25 @@ class CategoryTranslation(models.Model):
 
     def __str__(self):
         return f"{self.category.name} - {self.language.code} Translation"
+
+
+class CategorySchemaTranslation(models.Model):
+    category_schema = models.ForeignKey(
+        CategorySchema, on_delete=models.CASCADE, related_name="translations"
+    )
+    language = models.ForeignKey(Language, on_delete=models.CASCADE)
+    schema = models.JSONField(
+        null=True,
+        blank=True,
+        default=dict,
+        help_text="JSON representation of the schema. Types: [str, int, float, bool]. "
+        "Example: {'color': {'type': 'str', 'required': true}, 'size': {'type': 'int'}}",
+    )
+
+    class Meta:
+        unique_together = ("category_schema", "language")
+
+    def __str__(self):
+        primary_schema = self.category_schema.schema
+        schema_keys = ",".join(primary_schema.keys() if primary_schema else [])
+        return f" {self.category_schema.category.name} - [{schema_keys}] - {self.language.code} {_("Translation")}"

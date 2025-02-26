@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 
 
-from language.models import CategoryTranslation
+from language.models import CategoryTranslation, CategorySchemaTranslation
 from .models import Category, CategorySchema
 
 
@@ -42,10 +42,16 @@ class CategoryAdmin(admin.ModelAdmin):
     )  # Label for the column in admin
 
 
+class CategorySchemaTranslationInline(admin.TabularInline):
+    model = CategorySchemaTranslation
+    extra = 1
+
+
 @admin.register(CategorySchema)
 class CategorySchemaAdmin(admin.ModelAdmin):
     list_display = ("category", "display_properties")  # Show properties in list view
     search_fields = ("category__name",)  # Search by category name
+    inlines = [CategorySchemaTranslationInline]
 
     def display_properties(self, obj):
         # Extract the properties from the schema JSON
