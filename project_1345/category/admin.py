@@ -25,6 +25,10 @@ class CategoryAdmin(admin.ModelAdmin):
     list_editable = ("active",)  # Allow toggling active status in the list view
     inlines = [CategoryTranslationInline]
 
+    class Meta:
+        verbose_name = _("Category")
+        verbose_name_plural = _("Categories")
+
     def display_schema_properties(self, obj):
         # Fetch the CategorySchema for the current category
         category_schema = CategorySchema.objects.filter(category=obj).first()
@@ -62,3 +66,7 @@ class CategorySchemaAdmin(admin.ModelAdmin):
     display_properties.short_description = _(
         "Schema Properties"
     )  # Custom label for the column
+
+    class Meta:
+        verbose_name = _("Category Schema")
+        verbose_name_plural = _("Categories Schema")

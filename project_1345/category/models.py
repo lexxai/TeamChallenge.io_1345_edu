@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.cache import cache
+from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
 
@@ -60,14 +61,20 @@ class CategorySchema(models.Model):
     category = models.ForeignKey(
         Category,
         on_delete=models.CASCADE,
+        verbose_name=_("Category"),
         help_text=_("Category associated with the schema"),
     )  # Link to the Category model
     schema = models.JSONField(
         null=True,
         blank=True,
         default=dict,
-        help_text=f"{_('JSON representation of the schema')}. Types: [str, int, float, bool]. "
-        "Example: {'color': {'type': 'str', 'required': true}, 'size': {'type': 'int'}}",
+        verbose_name=_("Schema"),
+        help_text=format_lazy(
+            "{}. Types: [str, int, float, bool]. "
+            "{}: {{'color': {{'type': 'str', 'required': true}}, 'size': {{'type': 'int'}}}}",
+            _("JSON representation of the schema"),
+            _("Example"),
+        ),
     )  # Store the schema as a JSON object
 
     class Meta:
@@ -75,7 +82,7 @@ class CategorySchema(models.Model):
         verbose_name_plural = _("Category Schemas")
 
     def __str__(self):
-        return f"_('Schema for') {self.category.get_full_path()}"  # Return category name for easier identification
+        return str(format_lazy("{} {}", _("Schema for"), self.category.get_full_path()))
 
     def __repr__(self):
         return str(self)
