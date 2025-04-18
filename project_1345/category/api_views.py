@@ -6,7 +6,7 @@ from rest_framework.generics import ListAPIView
 from category.models import CategorySchema, Category
 from category.serializers import CategorySerializer, CategorySchemaSerializer
 from language.models import CategoryTranslation, CategorySchemaTranslation
-from utils.get_languages import get_not_primary_language
+from language.utils import get_not_primary_language
 
 
 @extend_schema(tags=["Category API"])
@@ -17,7 +17,7 @@ class CategoryList(ListAPIView):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        lang = get_not_primary_language(self.request)
+        lang = get_not_primary_language()
         if lang is None:
             return queryset  # No need to load translations
         return queryset.prefetch_related(
@@ -39,7 +39,7 @@ class CategorySchemaList(ListAPIView):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        lang = get_not_primary_language(self.request)
+        lang = get_not_primary_language()
         if lang is None:
             return queryset  # No need to load translations
         return queryset.prefetch_related(

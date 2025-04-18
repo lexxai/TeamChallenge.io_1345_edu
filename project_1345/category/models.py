@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.cache import cache
 from django.utils.text import format_lazy
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, get_language
 
 
 # Create your models here.
@@ -23,25 +23,38 @@ class Category(models.Model):
     def __str__(self):
         return self.get_full_path()
 
-    def get_cache_key(self):
-        return f"category_{self.id}"  # Unique cache key based on category ID
+    def get_cache_key(self, lang=None):
+        if lang is None:
+            lang = get_language()  # or default to 'en'
+        return f"category_{self.pk}_{lang}"
 
     def clear_cache(self):
         cache.delete(self.get_cache_key())
 
-    def get_full_path(self):
+    def get_translated_name(self, lang=None):
+        if hasattr(self, "preferred_translations") and self.preferred_translations:
+            return self.preferred_translations[0].name or self.name
+        return self.name
+
+    def get_full_path(self, lang=None):
         """
         Recursively build the full path of categories with parents.
-        Example: 'cat-1/cat-1-1'
+        Example: 'cat-1/cat-1-1' in user's language
         """
-        cache_key = self.get_cache_key()
+        if lang is None:
+            lang = get_language()
+
+        cache_key = self.get_cache_key(lang)
         full_path = cache.get(cache_key)
+
         if not full_path:
+            name = self.get_translated_name(lang)
             if self.parent:
-                full_path = f"{self.parent.get_full_path()}/{self.name}"
+                full_path = f"{self.parent.get_full_path(lang)}/{name}"
             else:
-                full_path = self.name
+                full_path = name
             cache.set(cache_key, full_path, 3600)  # Cache for 1 hour
+
         return full_path
 
     def save(self, *args, **kwargs):
