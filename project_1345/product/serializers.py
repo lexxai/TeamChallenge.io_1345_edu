@@ -142,11 +142,13 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = "__all__"
 
+    @extend_schema_field({"type": "string"})
     def get_name(self, obj):
         translation = self._get_translation(obj)
         name = translation.name if translation and translation.name else obj.name
         return name
 
+    @extend_schema_field({"type": "string"})
     def get_description(self, obj):
         translation = self._get_translation(obj)
         description = (

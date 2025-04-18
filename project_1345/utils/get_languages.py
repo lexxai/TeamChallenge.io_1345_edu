@@ -81,4 +81,5 @@ def get_not_primary_language(request, primary_lang=None) -> str | None:
     logger.debug(
         "Requested language: {}, Primary language: {}".format(lang, primary_lang)
     )
-    return None if primary_lang == lang else lang
+    return "en"
+    # return None if primary_lang == lang else lang

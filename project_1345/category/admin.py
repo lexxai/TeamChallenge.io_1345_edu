@@ -14,6 +14,7 @@ class CategoryTranslationInline(admin.TabularInline):
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = (
+        "id",
         "name",
         "parent",
         "active",
@@ -53,7 +54,11 @@ class CategorySchemaTranslationInline(admin.TabularInline):
 
 @admin.register(CategorySchema)
 class CategorySchemaAdmin(admin.ModelAdmin):
-    list_display = ("category", "display_properties")  # Show properties in list view
+    list_display = (
+        "id",
+        "category",
+        "display_properties",
+    )  # Show properties in list view
     search_fields = ("category__name",)  # Search by category name
     inlines = [CategorySchemaTranslationInline]
 
