@@ -23,7 +23,7 @@ from django_filters import rest_framework as filters
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from category.models import Category
-from language.models import ProductTranslation
+from language.models import ProductTranslation, CategorySchemaTranslation
 from users.permissions import IsAuthenticatedOrReadOnlyWithMangers
 from language.utils import get_not_primary_language
 from .serializers import (
@@ -134,15 +134,30 @@ class ProductViewSet(ModelViewSet):
         if lang is None:
             logger.debug("Primary language, skip translations")
             return queryset  # No need to load translations
-        return queryset.prefetch_related(
+        qs = queryset.prefetch_related(
+            "category",
             Prefetch(
                 "translations",
                 queryset=ProductTranslation.objects.select_related("language").filter(
                     language__code=lang
                 ),
                 to_attr="preferred_translations",
-            )
+            ),
+            Prefetch(
+                "category__schema__translations",
+                queryset=CategorySchemaTranslation.objects.filter(language__code=lang),
+                to_attr="preferred_translations_schema",
+            ),
         )
+        # Inspect the results
+        # for product in qs:
+        #     # print(product.category)  # This will print the related category
+        #     schema = product.category.schema
+        #     print(schema.preferred_translations_schema)
+        #     for prop in schema.preferred_translations_schema:
+        #         print(prop.schema, type(prop))
+
+        return qs
 
     def get_search_fields(self, request):
         """Dynamically determine search fields based on the database backend."""

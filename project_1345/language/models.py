@@ -59,8 +59,8 @@ class CategorySchemaTranslation(models.Model):
         null=True,
         blank=True,
         default=dict,
-        help_text="JSON representation of the schema. Types: [str, int, float, bool]. "
-        "Example: {'color': {'type': 'str', 'required': true}, 'size': {'type': 'int'}}",
+        help_text="JSON representation of the schema key related to primary language of schema."
+        "Example: {'color': 'колір', 'size': 'розмір'}",
     )
 
     class Meta:

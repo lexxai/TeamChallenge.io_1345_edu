@@ -1,4 +1,5 @@
 from pathlib import Path
+from pprint import pprint
 
 from django.conf import settings
 from django.core.exceptions import FieldError
@@ -9,6 +10,10 @@ from rest_framework.exceptions import ValidationError
 
 from category.models import CategorySchema
 from .models import Product, ProductImage
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @extend_schema_field({"type": "string", "format": "decimal", "example": "10.00"})
@@ -142,6 +147,26 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = "__all__"
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        pprint(data)
+        translated_schema = self._get_translation_schema(instance)
+        if translated_schema and translated_schema.schema:
+            cat_property = data.get("property")
+            cat_property_translated = translated_schema.schema
+            translated_prop = cat_property.copy()
+            if cat_property:
+                for key, value in cat_property.items():
+                    translated_property_key = cat_property_translated.get(key)
+                    if translated_property_key:
+                        translated_prop[translated_property_key] = value
+                        del translated_prop[key]
+                data["property"] = translated_prop
+
+            pprint(data)
+
+        return data
+
     @extend_schema_field({"type": "string"})
     def get_name(self, obj):
         translation = self._get_translation(obj)
@@ -165,6 +190,14 @@ class ProductSerializer(serializers.ModelSerializer):
             if hasattr(obj, "preferred_translations") and obj.preferred_translations
             else None
         )
+
+    def _get_translation_schema(self, obj):
+        if not hasattr(obj.category, "schema"):
+            return None
+        schema = obj.category.schema  # This will be a single object
+        if hasattr(schema, "preferred_translations_schema"):
+            return schema.preferred_translations_schema[0]
+        return None
 
     def validate(self, data):
         # Perform schema validation

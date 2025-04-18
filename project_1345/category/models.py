@@ -71,11 +71,12 @@ class Category(models.Model):
 
 
 class CategorySchema(models.Model):
-    category = models.ForeignKey(
+    category = models.OneToOneField(
         Category,
         on_delete=models.CASCADE,
         verbose_name=_("Category"),
         help_text=_("Category associated with the schema"),
+        related_name="schema",
     )  # Link to the Category model
     schema = models.JSONField(
         null=True,
