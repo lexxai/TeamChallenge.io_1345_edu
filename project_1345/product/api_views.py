@@ -131,7 +131,6 @@ class ProductViewSet(ModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
         lang = get_not_primary_language(self.request)
-        # lang = "en"
         if lang is None:
             logger.debug("Primary language, skip translations")
             return queryset  # No need to load translations
