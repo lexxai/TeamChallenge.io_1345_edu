@@ -10,7 +10,9 @@ class PropertySchemaSerializer(serializers.Serializer):
         choices=["str", "int", "float", "bool"],
         help_text="Type of the value (str, int, float, bool)",
     )
-    required = serializers.BooleanField(help_text="Indicates if the field is required")
+    required = serializers.BooleanField(
+        help_text="Indicates if the field is required", required=False, default=False
+    )
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -55,7 +57,11 @@ class CategorySchemaSerializer(serializers.ModelSerializer):
         # Replace schema if translation exists
         translation = self._get_translation(instance)
         if translation and translation.schema:
-            data["schema"] = translation.schema
+            for key, value in translation.schema.items():
+                if key in data["schema"]:
+                    val = data["schema"][key]
+                    data["schema"][value] = val
+                    del data["schema"][key]
         data["full_path"] = instance.category.get_full_path()
         return data
 
