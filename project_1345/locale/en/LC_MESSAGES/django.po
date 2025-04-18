@@ -1,0 +1,196 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-02-26 18:51+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: category/admin.py:29 category/models.py:56 category/models.py:64
+#: product/models.py:53
+msgid "Category"
+msgstr ""
+
+#: category/admin.py:30 category/models.py:57
+msgid "Categories"
+msgstr ""
+
+#: category/admin.py:41 category/admin.py:64
+msgid "No properties defined"
+msgstr ""
+
+#: category/admin.py:42
+msgid "No schema"
+msgstr ""
+
+#: category/admin.py:45 category/admin.py:67
+msgid "Schema Properties"
+msgstr ""
+
+#: category/admin.py:71 category/models.py:81
+msgid "Category Schema"
+msgstr ""
+
+#: category/admin.py:72
+msgid "Categories Schema"
+msgstr ""
+
+#: category/models.py:9 language/models.py:44
+msgid "Name of the category"
+msgstr ""
+
+#: category/models.py:15
+msgid "Parent category. Null if it's a root category"
+msgstr ""
+
+#: category/models.py:17
+msgid "Is the category active?"
+msgstr ""
+
+#: category/models.py:65
+msgid "Category associated with the schema"
+msgstr ""
+
+#: category/models.py:71
+msgid "Schema"
+msgstr ""
+
+#: category/models.py:75
+msgid "JSON representation of the schema"
+msgstr ""
+
+#: category/models.py:76
+msgid "Example"
+msgstr ""
+
+#: category/models.py:82
+msgid "Category Schemas"
+msgstr ""
+
+#: category/models.py:85
+msgid "Schema for"
+msgstr ""
+
+#: language/models.py:18
+msgid "Language"
+msgstr ""
+
+#: language/models.py:19
+msgid "Languages"
+msgstr ""
+
+#: language/models.py:27 product/models.py:21
+msgid "Name of the product"
+msgstr ""
+
+#: language/models.py:29 product/models.py:27
+msgid "Description of the product"
+msgstr ""
+
+#: language/models.py:72 product/admin.py:58
+msgid "Translation"
+msgstr ""
+
+#: product/admin.py:30
+msgid "has images"
+msgstr ""
+
+#: product/admin.py:38
+msgid "Yes"
+msgstr ""
+
+#: product/admin.py:39
+msgid "No"
+msgstr ""
+
+#: product/admin.py:59
+msgid "Translations"
+msgstr ""
+
+#: product/models.py:21
+msgid "Name"
+msgstr ""
+
+#: product/models.py:26
+msgid "Description"
+msgstr ""
+
+#: product/models.py:34
+msgid "SKU"
+msgstr ""
+
+#: product/models.py:35
+msgid "Stock Keeping Unit of the product"
+msgstr ""
+
+#: product/models.py:41
+msgid "Owner"
+msgstr ""
+
+#: product/models.py:42
+msgid "Owner of the product"
+msgstr ""
+
+#: product/models.py:47
+msgid "Price"
+msgstr ""
+
+#: product/models.py:48
+msgid "Price of the product, format: 0.00"
+msgstr ""
+
+#: product/models.py:54
+msgid "Category of the product"
+msgstr ""
+
+#: product/models.py:60
+msgid "Property"
+msgstr ""
+
+#: product/models.py:62
+msgid "Property of the product"
+msgstr ""
+
+#: product/models.py:66
+msgid "Created"
+msgstr ""
+
+#: product/models.py:66
+msgid "Creation date"
+msgstr ""
+
+#: product/models.py:70
+msgid "Updated"
+msgstr ""
+
+#: product/models.py:71
+msgid "Last updated date and time"
+msgstr ""
+
+#: product/models.py:74
+msgid "Active"
+msgstr ""
+
+#: product/models.py:74
+msgid "Is the product active?"
+msgstr ""
+
+#: product/models.py:79
+msgid "Product"
+msgstr ""
+
+#: product/models.py:80
+msgid "Products"
+msgstr ""

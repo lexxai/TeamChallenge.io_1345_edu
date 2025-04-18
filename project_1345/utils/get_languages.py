@@ -1,0 +1,63 @@
+from django.apps import apps
+
+# from django.utils.translation import gettext_lazy as _
+from django.utils.functional import LazyObject
+
+
+# from django.conf import settings
+
+
+class LazyLanguages(LazyObject):
+    # def __init__(self, lang: list = None):
+    #     super().__init__()
+    #     self.lang = lang
+    lang = None
+
+    def _setup(self):
+        try:
+            _lang = [] if self.lang is None else self.lang
+            Language = apps.get_model("language", "Language")
+            if not Language:
+                return []
+            languages = Language.objects.filter(is_active=True).order_by("-code")
+            print(languages)
+            language_list = []
+
+            lang_exist_list = [l[0] for l in _lang]
+
+            for lang in languages:
+                if lang.code not in lang_exist_list:
+                    language_list.append((lang.code, lang.name))
+            language_list = _lang.extend(language_list) if _lang else language_list
+        except LookupError:
+            language_list = (("en", "English"),)  # Default fallback
+
+        self._wrapped = language_list
+
+
+def _get_language_settings(lang: list = None) -> list[tuple[str, str]]:
+    try:
+        Language = apps.get_model("language", "Language")
+        if not Language:
+            return []
+        languages = Language.objects.filter(is_active=True).order_by("-code")
+        print(languages)
+        language_list = []
+
+        lang_exist_list = [l[0] for l in lang] if lang else []
+
+        for lang in languages:
+            if lang.code not in lang_exist_list:
+                language_list.append((lang.code, lang.name))
+
+        return language_list
+
+    except LookupError:  # handle if app not ready.
+        return []
+
+
+# get_language_settings = LazyLanguages()
+
+
+def get_language_settings(lang: list = None):
+    return LazyLanguages()

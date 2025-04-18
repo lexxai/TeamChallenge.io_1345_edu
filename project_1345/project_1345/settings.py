@@ -16,6 +16,7 @@ from pathlib import Path
 import redis as pure_redis
 from django.conf.global_settings import MEDIA_ROOT
 from dotenv import load_dotenv
+from django.utils.translation import gettext as _
 
 # from django.conf.global_settings import STATIC_ROOT
 
@@ -64,12 +65,14 @@ INSTALLED_APPS = [
     "cart",
     "category",
     "product",
+    "language",
 ]
 
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -131,14 +134,19 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
-
 TIME_ZONE = "UTC"
-
 USE_I18N = True
-
 USE_TZ = True
 
+PRIMARY_LANGUAGE = ("uk", "Ukrainian")
+ADDON_LANGUAGES = [("en", "English"), ("pl", "Polish")]
+LANGUAGES = [PRIMARY_LANGUAGE] + ADDON_LANGUAGES
+LANGUAGE_CODE = PRIMARY_LANGUAGE[0]
+
+
+LOCALE_PATHS = [BASE_DIR / "locale"]
+for lang in ADDON_LANGUAGES:
+    (BASE_DIR / "locale" / lang[0]).mkdir(exist_ok=True)
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
@@ -240,7 +248,7 @@ if DEBUG:
         "disable_existing_loggers": False,
         "handlers": {
             "console": {
-                "level": "WARNING",
+                "level": "DEBUG",
                 "class": "logging.StreamHandler",
             },
         },
@@ -248,6 +256,16 @@ if DEBUG:
             "django": {
                 "handlers": ["console"],
                 "level": "WARNING",
+                "propagate": True,
+            },
+            "utils": {
+                "handlers": ["console"],
+                "level": "DEBUG",
+                "propagate": True,
+            },
+            "product": {
+                "handlers": ["console"],
+                "level": "DEBUG",
                 "propagate": True,
             },
         },

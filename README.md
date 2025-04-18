@@ -70,6 +70,12 @@ Can delete one product:
 ```
 Or without any data can delete all item's cart
 
+### Language
+
+Added functionalities of translation to different languages
+- [languages.md](docs/languages.md)
+
+
 
 ### Deployed education version
 
