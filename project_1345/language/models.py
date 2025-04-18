@@ -69,4 +69,5 @@ class CategorySchemaTranslation(models.Model):
     def __str__(self):
         primary_schema = self.category_schema.schema
         schema_keys = ",".join(primary_schema.keys() if primary_schema else [])
-        return f" {self.category_schema.category.name} - [{schema_keys}] - {self.language.code} {_("Translation")}"
+        translation_label = _("Translation")
+        return f"{self.category_schema.category.name} - [{schema_keys}] - {self.language.code} {translation_label}"
