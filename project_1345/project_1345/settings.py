@@ -248,7 +248,7 @@ if DEBUG:
         "disable_existing_loggers": False,
         "handlers": {
             "console": {
-                "level": "WARNING",
+                "level": "DEBUG",
                 "class": "logging.StreamHandler",
             },
         },
@@ -256,6 +256,16 @@ if DEBUG:
             "django": {
                 "handlers": ["console"],
                 "level": "WARNING",
+                "propagate": True,
+            },
+            "utils": {
+                "handlers": ["console"],
+                "level": "DEBUG",
+                "propagate": True,
+            },
+            "product": {
+                "handlers": ["console"],
+                "level": "DEBUG",
                 "propagate": True,
             },
         },

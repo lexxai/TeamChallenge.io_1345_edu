@@ -1,9 +1,11 @@
 import hashlib
 import json
+import logging
 
+from django.conf import settings
 from django.core.cache import cache
 from django.db import connection
-from django.db.models import Count
+from django.db.models import Count, Prefetch
 from django_filters import (
     FilterSet,
     CharFilter,
@@ -21,12 +23,16 @@ from django_filters import rest_framework as filters
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from category.models import Category
+from language.models import ProductTranslation
 from users.permissions import IsAuthenticatedOrReadOnlyWithMangers
+from utils.get_languages import get_not_primary_language
 from .serializers import (
     ProductSerializer,
     ProductImageSerializer,
 )
 from .models import Product, ProductImage
+
+logger = logging.getLogger(__name__)
 
 
 class ProductsPagination(LimitOffsetPagination):
@@ -120,7 +126,24 @@ class ProductViewSet(ModelViewSet):
     ordering = ["-updated_at"]  # Default ordering same as on model index and ordering
     search_fields = ("name", "description")  # Used by DRF GUI and as a fallback
     cache_time_out = 60 * 60
-    cache_enabled = True
+    cache_enabled = False
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        lang = get_not_primary_language(self.request)
+        # lang = "en"
+        if lang is None:
+            logger.debug("Primary language, skip translations")
+            return queryset  # No need to load translations
+        return queryset.prefetch_related(
+            Prefetch(
+                "translations",
+                queryset=ProductTranslation.objects.select_related("language").filter(
+                    language__code=lang
+                ),
+                to_attr="preferred_translations",
+            )
+        )
 
     def get_search_fields(self, request):
         """Dynamically determine search fields based on the database backend."""

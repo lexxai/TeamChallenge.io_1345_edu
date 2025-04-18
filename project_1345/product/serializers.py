@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from django.conf import settings
 from django.core.exceptions import FieldError
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
@@ -121,6 +122,8 @@ class ProductImageCreateSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
     images = ProductImageListSerializer(
         many=True,
         required=False,
@@ -138,6 +141,28 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = "__all__"
+
+    def get_name(self, obj):
+        translation = self._get_translation(obj)
+        name = translation.name if translation and translation.name else obj.name
+        return name
+
+    def get_description(self, obj):
+        translation = self._get_translation(obj)
+        description = (
+            translation.description
+            if translation and translation.description
+            else obj.description
+        )
+        return description
+
+    def _get_translation(self, obj):
+        # `preferred_translations` is set by Prefetch in get_queryset()
+        return (
+            obj.preferred_translations[0]
+            if hasattr(obj, "preferred_translations") and obj.preferred_translations
+            else None
+        )
 
     def validate(self, data):
         # Perform schema validation
