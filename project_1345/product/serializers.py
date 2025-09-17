@@ -265,8 +265,9 @@ class ProductSerializer(serializers.ModelSerializer):
             # Call the model's save method
             super().save(**kwargs)
         except FieldError as e:
-            # Catch the FieldError raised by the model and re-raise it
-            raise ValidationError(str(e))
+            # Log the exception with traceback, but show only a generic message to the user
+            logger.error("FieldError encountered while saving Product: %s", str(e), exc_info=True)
+            raise ValidationError("Invalid field(s) provided in the request.")
         return self.instance
 
     def create(self, validated_data):
